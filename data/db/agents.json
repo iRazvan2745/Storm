@@ -1,0 +1,18 @@
+{
+  "agents": [
+    {
+      "id": "agent-1",
+      "name": "Agent-1",
+      "location": "US-East",
+      "status": "online",
+      "lastSeen": 1743096725776
+    },
+    {
+      "id": "agent-2",
+      "name": "Agent-2",
+      "location": "US-West",
+      "status": "online",
+      "lastSeen": 1743096724996
+    }
+  ]
+}
