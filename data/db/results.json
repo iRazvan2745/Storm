@@ -257,8 +257,8 @@
           {
             "startTime": 1743096600000,
             "endTime": 1743098399999,
-            "avgResponseTime": 147.5,
-            "count": 6
+            "avgResponseTime": 149.5,
+            "count": 10
           }
         ],
         "isDown": false
@@ -521,8 +521,8 @@
           {
             "startTime": 1743096600000,
             "endTime": 1743098399999,
-            "avgResponseTime": 91,
-            "count": 6
+            "avgResponseTime": 88.8,
+            "count": 10
           }
         ],
         "isDown": false
@@ -785,8 +785,8 @@
           {
             "startTime": 1743096600000,
             "endTime": 1743098399999,
-            "avgResponseTime": 85.16666666666667,
-            "count": 6
+            "avgResponseTime": 94.1,
+            "count": 10
           }
         ],
         "isDown": false
@@ -1051,8 +1051,8 @@
           {
             "startTime": 1743096600000,
             "endTime": 1743098399999,
-            "avgResponseTime": 158.5,
-            "count": 6
+            "avgResponseTime": 155.6,
+            "count": 10
           }
         ],
         "isDown": false
@@ -1315,8 +1315,8 @@
           {
             "startTime": 1743096600000,
             "endTime": 1743098399999,
-            "avgResponseTime": 92.66666666666667,
-            "count": 6
+            "avgResponseTime": 93.4,
+            "count": 10
           }
         ],
         "isDown": false
@@ -1579,8 +1579,8 @@
           {
             "startTime": 1743096600000,
             "endTime": 1743098399999,
-            "avgResponseTime": 88.5,
-            "count": 6
+            "avgResponseTime": 78.6,
+            "count": 10
           }
         ],
         "isDown": false
