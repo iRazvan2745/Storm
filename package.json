@@ -1,33 +1,21 @@
 {
-  "name": "storm",
+  "name": "storm-monorepo",
   "version": "0.1.0",
-  "module": "src/server/index.ts",
+  "module": "index.ts",
   "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "dev:page": "cd page && bun run dev",
-    "build:page": "cd page && bun run build",
-    "server": "bun run src/server/index.ts",
-    "agent": "bun run src/agent/main.ts",
-    "dev:server": "bun --watch run src/server/index.ts",
-    "dev:agent1": "SERVER_URL=http://localhost:3000 AGENT_NAME=\"Agent-1\" AGENT_LOCATION=\"US-East\" bun --watch run src/agent/main.ts",
-    "dev:agent2": "SERVER_URL=http://localhost:3000 AGENT_NAME=\"Agent-2\" AGENT_LOCATION=\"US-West\" bun --watch run src/agent/main.ts",
-    "dev": "concurrently \"bun run dev:server\" \"bun run dev:agent1\" \"bun run dev:agent2\""
+    "dev:web": "bun --cwd packages/web run dev",
+    "build:web": "bun --cwd packages/web run build",
+    "dev:server": "bun --cwd packages/server run dev",
+    "dev:agent1": "bun --cwd packages/agent run dev:agent1",
+    "dev:agent2": "bun --cwd packages/agent run dev:agent2",
+    "dev": "concurrently \"bun run dev:server\" \"bun run dev:agent1\" \"bun run dev:agent2\" \"bun run dev:web\""
   },
   "devDependencies": {
-    "@types/chokidar": "^2.1.7",
-    "@types/fs-extra": "^11.0.4",
     "bun-types": "latest",
     "concurrently": "^8.2.2"
-  },
-  "dependencies": {
-    "@elysiajs/swagger": "^0.8.0",
-    "chalk": "^5.4.1",
-    "chokidar": "^3.6.0",
-    "commander": "^11.1.0",
-    "date-fns": "^2.30.0",
-    "dotenv": "^16.4.7",
-    "elysia": "^0.8.0",
-    "fs-extra": "^11.3.0",
-    "node-cron": "^3.0.3"
   }
 }
