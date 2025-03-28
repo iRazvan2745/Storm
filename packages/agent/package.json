@@ -6,8 +6,8 @@
   "scripts": {
     "start": "bun run main.ts",
     "dev": "bun --watch run main.ts",
-    "dev:agent1": "SERVER_URL=http://localhost:3000 AGENT_NAME=\"Agent-1\" AGENT_LOCATION=\"US-East\" bun --watch run main.ts",
-    "dev:agent2": "SERVER_URL=http://localhost:3000 AGENT_NAME=\"Agent-2\" AGENT_LOCATION=\"US-West\" bun --watch run main.ts"
+    "dev:agent1": "cross-env SERVER_URL=http://localhost:3000 AGENT_NAME=\"Agent-1\" AGENT_LOCATION=\"US-East\" bun --watch run main.ts",
+    "dev:agent2": "cross-env SERVER_URL=http://localhost:3000 AGENT_NAME=\"Agent-2\" AGENT_LOCATION=\"US-West\" bun --watch run main.ts"
   },
   "dependencies": {
     "@storm/shared": "workspace:*",
@@ -16,6 +16,7 @@
     "dotenv": "^16.4.7"
   },
   "devDependencies": {
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "cross-env": "^7.0.3"
   }
 }

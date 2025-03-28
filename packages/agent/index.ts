@@ -365,9 +365,14 @@ export class MonitorAgent {
       if (!this.isRunning) return;
       
       try {
-        logInfo(`Checking for target updates (last updated: ${new Date(this.lastTargetsUpdate).toISOString()})...`);
+        // Ensure lastTargetsUpdate is a valid number before creating a Date
+        const lastUpdateTime = this.lastTargetsUpdate > 0 
+          ? new Date(this.lastTargetsUpdate).toISOString() 
+          : 'never';
+        
+        logInfo(`Checking for target updates (last updated: ${lastUpdateTime})...`);
         const response = await fetch(
-          `${this.config.serverUrl}/api/targets/check-updates?lastChecked=${this.lastTargetsUpdate}`,
+          `${this.config.serverUrl}/api/targets/check-updates?lastChecked=${this.lastTargetsUpdate || 0}`,
           {
             headers: { 
               'Content-Type': 'application/json',
@@ -385,8 +390,13 @@ export class MonitorAgent {
 
         const data = await response.json() as { hasUpdates: boolean, lastUpdated: number };
         
+        // Ensure lastUpdated from server is a valid number
+        const serverLastUpdated = typeof data.lastUpdated === 'number' && !isNaN(data.lastUpdated) 
+          ? data.lastUpdated 
+          : Date.now();
+        
         if (data.hasUpdates) {
-          logInfo(`Target updates available. Server last updated: ${new Date(data.lastUpdated).toISOString()}`);
+          logInfo(`Target updates available. Server last updated: ${new Date(serverLastUpdated).toISOString()}`);
           
           // Stop current target checks
           this.stopTargetChecks();
@@ -400,7 +410,7 @@ export class MonitorAgent {
           
           logInfo(`Successfully updated targets. Now monitoring ${this.targets.length} targets.`);
         } else {
-          logInfo(`No target updates available. Server last updated: ${new Date(data.lastUpdated).toISOString()}`);
+          logInfo(`No target updates available. Server last updated: ${new Date(serverLastUpdated).toISOString()}`);
         }
       } catch (error) {
         logError(`Error checking for target updates: ${error}`);

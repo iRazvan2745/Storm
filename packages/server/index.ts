@@ -1,6 +1,6 @@
 import { Elysia } from 'elysia';
-import type { Agent, Target, MonitoringResult, ResponseTimeInterval } from '../shared/types';
-import { logInfo, logWarning, logError } from '../shared/utils';
+import type { Agent, Target, MonitoringResult, ResponseTimeInterval } from '@storm/shared';
+import { logInfo, logWarning, logError } from '@storm/shared';
 import { TargetManager } from './targetManager';
 import { AgentManager } from './agentManager';
 import { ResultsManager } from './resultsManager';

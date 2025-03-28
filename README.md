@@ -1,4 +1,4 @@
-# TailMonitor
+# Storm
 
 A distributed monitoring system with persistent storage and hot-reloadable configuration.
 

@@ -23,6 +23,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .eslintcache
 .cache
 *.tsbuildinfo
+bun.lock
 
 # IntelliJ based IDEs
 .idea

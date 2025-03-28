@@ -7,11 +7,15 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:web": "bun --cwd packages/web run dev",
-    "build:web": "bun --cwd packages/web run build",
-    "dev:server": "bun --cwd packages/server run dev",
-    "dev:agent1": "bun --cwd packages/agent run dev:agent1",
-    "dev:agent2": "bun --cwd packages/agent run dev:agent2",
+    "dev:web": "cd packages/web && bun run dev",
+    "build:web": "cd packages/web && bun run build",
+    "start:web": "cd packages/web && bun run start",
+    "start:server": "cd packages/server && bun run start",
+    "start:agent1": "cd packages/agent && bun run start:agent1",
+    "start:agent2": "cd packages/agent && bun run start:agent2",
+    "dev:server": "cd packages/server && bun run dev",
+    "dev:agent1": "cd packages/agent && bun run dev:agent1",
+    "dev:agent2": "cd packages/agent && bun run dev:agent2",
     "dev": "concurrently \"bun run dev:server\" \"bun run dev:agent1\" \"bun run dev:agent2\" \"bun run dev:web\""
   },
   "devDependencies": {
