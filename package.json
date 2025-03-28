@@ -19,7 +19,13 @@
     "dev": "concurrently \"bun run dev:server\" \"bun run dev:agent1\" \"bun run dev:agent2\" \"bun run dev:web\""
   },
   "devDependencies": {
+    "autoprefixer": "^10.4.21",
     "bun-types": "latest",
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.0.17"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.0.17"
   }
 }

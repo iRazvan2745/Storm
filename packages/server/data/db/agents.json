@@ -4,14 +4,14 @@
       "id": "agent-1",
       "name": "Agent-1",
       "location": "US-East",
-      "status": "online",
+      "status": "offline",
       "lastSeen": 1743196921218
     },
     {
       "id": "agent-2",
       "name": "Agent-2",
       "location": "US-West",
-      "status": "online",
+      "status": "offline",
       "lastSeen": 1743196921212
     }
   ]
