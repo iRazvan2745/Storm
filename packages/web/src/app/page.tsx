@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react"
 import { CheckCircle, AlertTriangle, XCircle, Loader2, Info } from "lucide-react"
 import StatusPage from "@/components/status-page"
-import Footer from "@/components/footer"
-import Nav from "@/components/nav"
 import type { StatusData } from "@/components/status-page"
+import Link from "next/link"
+import Nav from "@/components/nav"
+import Footer from "@/components/footer"
+import { Skeleton } from "@/components/skeleton"
 
 type ApiResponse = {
   results: Record<string, StatusData>
@@ -37,9 +39,9 @@ export default function Home() {
           console.warn("API response missing expected 'results' structure:", result)
           setStatusData({})
         }
-      } catch (error) {
-        console.error("Error fetching uptime data:", error)
-        setError(error instanceof Error ? error.message : "An unknown error occurred")
+      } catch (err) {
+        console.error("Error fetching uptime data:", err)
+        setError(err instanceof Error ? err.message : "An unknown error occurred")
       } finally {
         setLoading(false)
       }
@@ -48,7 +50,7 @@ export default function Home() {
     fetchData()
   }, [])
 
-  // Calculate overall system status
+  // Calculate overall system status based on each target’s most recent day.
   const getSystemStatus = () => {
     if (Object.keys(statusData).length === 0) return "unknown"
 
@@ -56,7 +58,6 @@ export default function Home() {
     let hasDegraded = false
 
     Object.values(statusData).forEach((targetData) => {
-      // Check the most recent day's data
       const dates = Object.keys(targetData).sort().reverse()
       if (dates.length > 0) {
         const latestData = targetData[dates[0]]
@@ -111,11 +112,14 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       <Nav />
+
       <main className="flex-grow">
-        <div className="max-w-3xl mx-auto px-4 py-8 sm:px-6">
+        <div className="max-w-3xl mx-auto px-4 py-8 mt-8 sm:px-6 border rounded-xl">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">System Status</h1>
-            <p className="mt-1 text-gray-600 dark:text-gray-400">Monitor the performance and uptime of our services</p>
+            <p className="mt-1 text-gray-600 dark:text-gray-400">
+              Monitor the performance and uptime of our services
+            </p>
           </div>
 
           {!loading && !error && Object.keys(statusData).length > 0 && (
@@ -139,24 +143,15 @@ export default function Home() {
           )}
 
           {loading ? (
-            <div className="text-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-              <p className="text-gray-600 dark:text-gray-400">Loading status data...</p>
-            </div>
-          ) : error ? (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 p-4 rounded-md">
-              <h3 className="text-base font-medium mb-1">Error loading uptime data</h3>
-              <p className="text-sm">{error}</p>
-            </div>
-          ) : Object.keys(statusData).length === 0 ? (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-400 p-4 rounded-md">
-              <h3 className="text-base font-medium mb-1">No status data available</h3>
-              <p className="text-sm">There is currently no uptime data to display.</p>
+            <div className="space-y-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-[120px] bg-gray-100 animate-pulse rounded-md"></div>
+              ))}
             </div>
           ) : (
             <div className="space-y-8">
               {Object.entries(statusData).map(([targetId, data]) => {
-                // Calculate uptime percentage
+                // Calculate uptime percentage over all available days
                 const totalDays = Object.keys(data).length
                 const downtimeDays = Object.values(data).filter((day) => day.isDown || day.downtimeMs > 0).length
                 const uptimePercentage =
@@ -176,7 +171,8 @@ export default function Home() {
                       </div>
                       <span className="text-sm text-gray-500">{uptimePercentage}%</span>
                     </div>
-                    <StatusPage statusData={data} title="" description="" />
+                    {/* Render the 45-day history */}
+                    <StatusPage statusData={data} title="" description="" showLegend />
                   </div>
                 )
               })}
@@ -209,8 +205,8 @@ export default function Home() {
           )}
         </div>
       </main>
+
       <Footer />
     </div>
   )
 }
-

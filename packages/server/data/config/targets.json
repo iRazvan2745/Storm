@@ -16,8 +16,8 @@
     },
     {
       "id": 3,
-      "url": "https://down-service.com",
-      "name": "Down Service",
+      "url": "https://waffle.host",
+      "name": "Waffle Host",
       "interval": 60000,
       "timeout": 5000
     }

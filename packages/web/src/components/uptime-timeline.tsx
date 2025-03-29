@@ -119,7 +119,7 @@ function UptimePill({
   )
 }
 
-function formatDowntime(downtimeMs: number): string {
+export function formatDowntime(downtimeMs: number): string {
   if (downtimeMs === 0) return "0"
 
   const seconds = Math.floor(downtimeMs / 1000)

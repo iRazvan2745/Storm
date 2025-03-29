@@ -8,6 +8,12 @@ type UptimeTargetData = {
   targetId?: number;
   uptimePercentage?: number;
   agentReports?: Record<string, number>;
+  incidents?: Array<{
+    startTime: number;
+    endTime: number | null;
+    isPartial: boolean;
+    responseTime: number;
+  }>;
 }
 
 type UptimeApiResponse = {
@@ -63,9 +69,15 @@ export async function GET(request: Request) {
           // Add the date entry for this target
           if (targetData && typeof targetData === 'object') {
             formattedData.results[targetId][dateParam] = {
-              isDown: targetData.isDown || false,
+              isDown: targetData.incidents?.some(i => i.endTime === null) ?? false,
               downtimeMs: targetData.downtimeMs || 0,
-              avgResponseTime: targetData.avgResponseTime || 0
+              avgResponseTime: targetData.avgResponseTime || 0,
+              incidents: targetData.incidents?.map(incident => ({
+                startTime: incident.startTime,
+                endTime: incident.endTime,
+                isPartial: incident.isPartial,
+                responseTime: incident.responseTime
+              }))
             };
           }
         });
@@ -161,9 +173,15 @@ export async function GET(request: Request) {
         }
         
         formattedResults[targetId][todayStr] = {
-          isDown: targetData.isDown || false,
+          isDown: targetData.incidents?.some(i => i.endTime === null) ?? false,
           downtimeMs: targetData.downtimeMs || 0,
-          avgResponseTime: targetData.avgResponseTime || 0
+          avgResponseTime: targetData.avgResponseTime || 0,
+          incidents: targetData.incidents?.map(incident => ({
+            startTime: incident.startTime,
+            endTime: incident.endTime,
+            isPartial: incident.isPartial,
+            responseTime: incident.responseTime
+          }))
         };
       });
     }
@@ -203,9 +221,15 @@ export async function GET(request: Request) {
           }
           
           formattedResults[targetId][date] = {
-            isDown: targetData.isDown || false,
+            isDown: targetData.incidents?.some(i => i.endTime === null) ?? false,
             downtimeMs: targetData.downtimeMs || 0,
-            avgResponseTime: targetData.avgResponseTime || 0
+            avgResponseTime: targetData.avgResponseTime || 0,
+            incidents: targetData.incidents?.map(incident => ({
+              startTime: incident.startTime,
+              endTime: incident.endTime,
+              isPartial: incident.isPartial,
+              responseTime: incident.responseTime
+            }))
           };
         });
       }
