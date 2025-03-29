@@ -57,7 +57,80 @@ export function UptimeStatusDashboard() {
   }
 
   if (!data || !data.results || Object.keys(data.results).length === 0) {
-    return <div>No data available</div>
+    // Use targetMap if available to show placeholders for actual targets
+    const targetEntries = data?.targetMap ? Object.entries(data.targetMap) : [];
+    
+    // If we have targetMap data, use it to create placeholders for each target
+    if (targetEntries.length > 0) {
+      return (
+        <div className="space-y-8">
+          {targetEntries.map(([targetId, targetName]) => (
+            <div key={targetId} className="border rounded-lg p-6 bg-white shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-gray-300" />
+                  <div>
+                    <div className="font-medium">{targetName}</div>
+                    <div className="text-sm text-gray-500">No status</div>
+                  </div>
+                </div>
+                <div className="text-lg font-medium text-gray-400">--% uptime</div>
+              </div>
+
+              <div className="mt-6">
+                <div className="flex items-end h-12 gap-1">
+                  {Array.from({ length: 45 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className="w-2 h-full bg-gray-300 rounded-sm"
+                    />
+                  ))}
+                </div>
+                <div className="flex justify-between mt-2 text-xs text-gray-500">
+                  <span>45 days ago</span>
+                  <span>Today</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    
+    // Fallback to generic placeholders if no targetMap is available
+    return (
+      <div className="space-y-8">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="border rounded-lg p-6 bg-white shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded-full bg-gray-300" />
+                <div>
+                  <div className="font-medium">Monitor {i}</div>
+                  <div className="text-sm text-gray-500">No status</div>
+                </div>
+              </div>
+              <div className="text-lg font-medium text-gray-400">--% uptime</div>
+            </div>
+
+            <div className="mt-6">
+              <div className="flex items-end h-12 gap-1">
+                {Array.from({ length: 45 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="w-2 h-full bg-gray-300 rounded-sm"
+                  />
+                ))}
+              </div>
+              <div className="flex justify-between mt-2 text-xs text-gray-500">
+                <span>45 days ago</span>
+                <span>Today</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   }
 
   return (

@@ -21,6 +21,9 @@ export function UptimeTimeline({ statusData, targetId }: UptimeTimelineProps) {
   
   console.log(`UptimeTimeline for targetId: ${targetId}`, statusData)
 
+  // Check if we have any data for this target
+  const hasAnyData = Object.keys(statusData).length > 0
+
   return (
     <div>
       <TooltipProvider>
@@ -103,7 +106,7 @@ function UptimePill({
       </TooltipTrigger>
       <TooltipContent side="top" className="p-2 max-w-xs">
         <div className="font-medium">{formattedDate}</div>
-        {!hasRealData && <div className="text-sm mt-1">No data available</div>}
+        {!hasRealData && <div className="text-sm mt-1 text-gray-500">No data</div>}
         {hasRealData && isDown && <div className="text-sm mt-1 text-red-600">System down</div>}
         {hasRealData && !isDown && downtimeMs > 0 && (
           <div className="text-sm mt-1">{formatDowntime(downtimeMs)} downtime</div>

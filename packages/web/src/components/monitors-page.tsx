@@ -115,9 +115,46 @@ function MonitorsPage() {
     }
     
     if (!latencyData || Object.keys(latencyData).length === 0) {
+      // Create gray placeholder charts instead of showing "No monitoring data available" message
       return (
-        <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 p-4 rounded-md">
-          No monitoring data available.
+        <div>
+          <div className="mb-8">
+            <h1 className="text-2xl font-semibold">Latency</h1>
+            <p className="text-gray-600 mt-4">Response time over the <span className="font-medium">last 7d</span> across <span className="font-medium">all selected regions</span> within a <span className="font-medium">p95 quantile</span>.</p>
+          </div>
+          
+          {/* Generate placeholder charts */}
+          {[1, 2, 3].map((index) => (
+            <div key={index} className="mb-8">
+              <div className="flex justify-between items-center mb-2">
+                <div>
+                  <h3 className="text-base font-medium">Monitor {index}</h3>
+                </div>
+                <button className="text-xs text-gray-500 hover:text-gray-700 flex items-center">
+                  Details <ArrowRight className="ml-1 h-3 w-3" />
+                </button>
+              </div>
+              <div className="w-full bg-white p-4 rounded-md border border-gray-200 mb-6">
+                <div className="flex justify-between items-center mb-1">
+                  <div>
+                    <h3 className="text-base font-medium">Monitor {index}</h3>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-gray-500">
+                      {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, 
+                      {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                    <div className="flex items-center space-x-1">
+                      <span className="text-xs font-medium">Latency</span>
+                      <span className="text-xs text-gray-500">-- ms</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="h-[80px] bg-gray-100 rounded-md"></div>
+              </div>
+            </div>
+          ))}
         </div>
       );
     }

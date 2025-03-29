@@ -25,30 +25,32 @@ export default function StatusPage({
   const allDates = getLast45Days()
 
   return (
-    <div className="w-full space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold">{title}</h2>
-          <p className="text-sm text-muted-foreground">{description}</p>
+    <div className="w-full space-y-1">
+      {title && description && (
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h2 className="text-lg font-semibold">{title}</h2>
+            <p className="text-sm text-muted-foreground">{description}</p>
+          </div>
+          <div className="flex items-center gap-3 text-xs">
+            <div className="flex items-center gap-1.5">
+              <div className="h-3 w-3 rounded-sm bg-green-500"></div>
+              <span>Operational</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="h-3 w-3 rounded-sm bg-yellow-500"></div>
+              <span>Degraded</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="h-3 w-3 rounded-sm bg-red-500"></div>
+              <span>Outage</span>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-3 text-xs">
-          <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-sm bg-green-500"></div>
-            <span>Operational</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-sm bg-yellow-500"></div>
-            <span>Degraded</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-sm bg-red-500"></div>
-            <span>Outage</span>
-          </div>
-        </div>
-      </div>
+      )}
 
       <TooltipProvider delayDuration={100}>
-        <div className="flex items-center gap-[3px] p-4 bg-card rounded-lg border">
+        <div className="flex items-center gap-[3px]">
           {allDates.map((date) => {
             const dateStr = date.toISOString().split("T")[0]
             const hasData = statusData[dateStr] !== undefined
@@ -67,8 +69,8 @@ export default function StatusPage({
         </div>
       </TooltipProvider>
 
-      <div className="flex justify-between text-xs text-muted-foreground px-1">
-        <span>{formatRelativeDate(allDates[0])}</span>
+      <div className="flex justify-between text-xs text-muted-foreground">
+        <span>45 days ago</span>
         <span>Today</span>
       </div>
     </div>
@@ -147,7 +149,7 @@ function UptimePill({
       <TooltipTrigger asChild>
         <div
           className={cn(
-            "w-[6px] sm:w-[10px] md:w-[18px] h-[30px] rounded-[3px] transition-all hover:scale-110 cursor-pointer",
+            "w-[6px] sm:w-[8px] h-[30px] rounded-[3px] transition-all hover:scale-110 cursor-pointer",
             statusColor,
           )}
           aria-label={`Status for ${formattedDate}: ${status}`}
@@ -156,7 +158,9 @@ function UptimePill({
       <TooltipContent side="top" className="p-2 bg-white dark:bg-gray-900 shadow-lg rounded-lg border">
         <div className="flex items-center gap-2">
           <div className={cn("h-5 w-1 rounded-full", statusColor)}></div>
-          <span className={cn("text-sm font-medium text-black", statusTextColor)}>{status}</span>
+          <span className={cn("text-sm font-medium text-black", statusTextColor)}>
+            {hasRealData ? status : "No data"}
+          </span>
           <span className="text-sm text-gray-500">{formattedDate.split(", ")[1]}</span>
         </div>
       </TooltipContent>

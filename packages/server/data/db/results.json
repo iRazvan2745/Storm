@@ -1,0 +1,658 @@
+{
+  "agent-2": {
+    "1": {
+      "2025-03-28": {
+        "date": "2025-03-28",
+        "downtimeMs": 0,
+        "incidents": [],
+        "responseTimeIntervals": [
+          {
+            "startTime": 1743201000000,
+            "endTime": 1743202799999,
+            "avgResponseTime": 176.35000000000005,
+            "count": 40
+          },
+          {
+            "startTime": 1743202800000,
+            "endTime": 1743204599999,
+            "avgResponseTime": 166.24444444444444,
+            "count": 90
+          },
+          {
+            "startTime": 1743204600000,
+            "endTime": 1743206399999,
+            "avgResponseTime": 154.97777777777773,
+            "count": 90
+          }
+        ],
+        "isDown": false
+      },
+      "2025-03-29": {
+        "date": "2025-03-29",
+        "downtimeMs": 0,
+        "incidents": [],
+        "responseTimeIntervals": [
+          {
+            "startTime": 1743206400000,
+            "endTime": 1743208199999,
+            "avgResponseTime": 163.18888888888887,
+            "count": 90
+          },
+          {
+            "startTime": 1743208200000,
+            "endTime": 1743209999999,
+            "avgResponseTime": 171.26666666666668,
+            "count": 90
+          },
+          {
+            "startTime": 1743210000000,
+            "endTime": 1743211799999,
+            "avgResponseTime": 144.47777777777776,
+            "count": 90
+          },
+          {
+            "startTime": 1743211800000,
+            "endTime": 1743213599999,
+            "avgResponseTime": 153.22222222222223,
+            "count": 90
+          },
+          {
+            "startTime": 1743213600000,
+            "endTime": 1743215399999,
+            "avgResponseTime": 147.44444444444449,
+            "count": 90
+          },
+          {
+            "startTime": 1743215400000,
+            "endTime": 1743217199999,
+            "avgResponseTime": 144.45555555555558,
+            "count": 90
+          },
+          {
+            "startTime": 1743217200000,
+            "endTime": 1743218999999,
+            "avgResponseTime": 134.84444444444438,
+            "count": 90
+          },
+          {
+            "startTime": 1743219000000,
+            "endTime": 1743220799999,
+            "avgResponseTime": 122.62222222222222,
+            "count": 90
+          },
+          {
+            "startTime": 1743220800000,
+            "endTime": 1743222599999,
+            "avgResponseTime": 118.08888888888889,
+            "count": 90
+          },
+          {
+            "startTime": 1743222600000,
+            "endTime": 1743224399999,
+            "avgResponseTime": 123.8,
+            "count": 90
+          },
+          {
+            "startTime": 1743224400000,
+            "endTime": 1743226199999,
+            "avgResponseTime": 129.27777777777774,
+            "count": 90
+          },
+          {
+            "startTime": 1743226200000,
+            "endTime": 1743227999999,
+            "avgResponseTime": 127.08888888888889,
+            "count": 90
+          },
+          {
+            "startTime": 1743228000000,
+            "endTime": 1743229799999,
+            "avgResponseTime": 130.86666666666662,
+            "count": 90
+          },
+          {
+            "startTime": 1743229800000,
+            "endTime": 1743231599999,
+            "avgResponseTime": 135.9666666666667,
+            "count": 90
+          },
+          {
+            "startTime": 1743231600000,
+            "endTime": 1743233399999,
+            "avgResponseTime": 134.61111111111106,
+            "count": 90
+          },
+          {
+            "startTime": 1743233400000,
+            "endTime": 1743235199999,
+            "avgResponseTime": 142.21111111111108,
+            "count": 90
+          },
+          {
+            "startTime": 1743235200000,
+            "endTime": 1743236999999,
+            "avgResponseTime": 139.7444444444445,
+            "count": 90
+          },
+          {
+            "startTime": 1743237000000,
+            "endTime": 1743238799999,
+            "avgResponseTime": 139.39999999999998,
+            "count": 90
+          },
+          {
+            "startTime": 1743238800000,
+            "endTime": 1743240599999,
+            "avgResponseTime": 134.43589743589746,
+            "count": 39
+          }
+        ],
+        "isDown": false
+      }
+    },
+    "2": {
+      "2025-03-28": {
+        "date": "2025-03-28",
+        "downtimeMs": 0,
+        "incidents": [],
+        "responseTimeIntervals": [
+          {
+            "startTime": 1743201000000,
+            "endTime": 1743202799999,
+            "avgResponseTime": 133.325,
+            "count": 40
+          },
+          {
+            "startTime": 1743202800000,
+            "endTime": 1743204599999,
+            "avgResponseTime": 139.3,
+            "count": 90
+          },
+          {
+            "startTime": 1743204600000,
+            "endTime": 1743206399999,
+            "avgResponseTime": 125.65555555555555,
+            "count": 90
+          }
+        ],
+        "isDown": false
+      },
+      "2025-03-29": {
+        "date": "2025-03-29",
+        "downtimeMs": 0,
+        "incidents": [],
+        "responseTimeIntervals": [
+          {
+            "startTime": 1743206400000,
+            "endTime": 1743208199999,
+            "avgResponseTime": 124.73333333333335,
+            "count": 90
+          },
+          {
+            "startTime": 1743208200000,
+            "endTime": 1743209999999,
+            "avgResponseTime": 121.22222222222223,
+            "count": 90
+          },
+          {
+            "startTime": 1743210000000,
+            "endTime": 1743211799999,
+            "avgResponseTime": 122.75555555555556,
+            "count": 90
+          },
+          {
+            "startTime": 1743211800000,
+            "endTime": 1743213599999,
+            "avgResponseTime": 124.2,
+            "count": 90
+          },
+          {
+            "startTime": 1743213600000,
+            "endTime": 1743215399999,
+            "avgResponseTime": 127.07777777777778,
+            "count": 90
+          },
+          {
+            "startTime": 1743215400000,
+            "endTime": 1743217199999,
+            "avgResponseTime": 124.67777777777778,
+            "count": 90
+          },
+          {
+            "startTime": 1743217200000,
+            "endTime": 1743218999999,
+            "avgResponseTime": 123.22222222222226,
+            "count": 90
+          },
+          {
+            "startTime": 1743219000000,
+            "endTime": 1743220799999,
+            "avgResponseTime": 126.9,
+            "count": 90
+          },
+          {
+            "startTime": 1743220800000,
+            "endTime": 1743222599999,
+            "avgResponseTime": 126.37777777777778,
+            "count": 90
+          },
+          {
+            "startTime": 1743222600000,
+            "endTime": 1743224399999,
+            "avgResponseTime": 126.66666666666667,
+            "count": 90
+          },
+          {
+            "startTime": 1743224400000,
+            "endTime": 1743226199999,
+            "avgResponseTime": 121.52222222222223,
+            "count": 90
+          },
+          {
+            "startTime": 1743226200000,
+            "endTime": 1743227999999,
+            "avgResponseTime": 121.02222222222223,
+            "count": 90
+          },
+          {
+            "startTime": 1743228000000,
+            "endTime": 1743229799999,
+            "avgResponseTime": 117.14444444444445,
+            "count": 90
+          },
+          {
+            "startTime": 1743229800000,
+            "endTime": 1743231599999,
+            "avgResponseTime": 123.07777777777778,
+            "count": 90
+          },
+          {
+            "startTime": 1743231600000,
+            "endTime": 1743233399999,
+            "avgResponseTime": 122.92222222222222,
+            "count": 90
+          },
+          {
+            "startTime": 1743233400000,
+            "endTime": 1743235199999,
+            "avgResponseTime": 121.86666666666666,
+            "count": 90
+          },
+          {
+            "startTime": 1743235200000,
+            "endTime": 1743236999999,
+            "avgResponseTime": 122.18888888888888,
+            "count": 90
+          },
+          {
+            "startTime": 1743237000000,
+            "endTime": 1743238799999,
+            "avgResponseTime": 127.66666666666673,
+            "count": 90
+          },
+          {
+            "startTime": 1743238800000,
+            "endTime": 1743240599999,
+            "avgResponseTime": 131.66666666666666,
+            "count": 39
+          }
+        ],
+        "isDown": false
+      }
+    },
+    "3": {
+      "2025-03-28": {
+        "date": "2025-03-28",
+        "downtimeMs": 0,
+        "incidents": [
+          {
+            "startTime": 1743201967219,
+            "endTime": null
+          }
+        ],
+        "responseTimeIntervals": [],
+        "isDown": true
+      },
+      "2025-03-29": {
+        "date": "2025-03-29",
+        "downtimeMs": 0,
+        "incidents": [
+          {
+            "startTime": 1743206414038,
+            "endTime": null
+          }
+        ],
+        "responseTimeIntervals": [],
+        "isDown": true
+      }
+    }
+  },
+  "agent-1": {
+    "1": {
+      "2025-03-28": {
+        "date": "2025-03-28",
+        "downtimeMs": 0,
+        "incidents": [],
+        "responseTimeIntervals": [
+          {
+            "startTime": 1743201000000,
+            "endTime": 1743202799999,
+            "avgResponseTime": 175.57894736842104,
+            "count": 38
+          },
+          {
+            "startTime": 1743202800000,
+            "endTime": 1743204599999,
+            "avgResponseTime": 176.71111111111105,
+            "count": 90
+          },
+          {
+            "startTime": 1743204600000,
+            "endTime": 1743206399999,
+            "avgResponseTime": 164.24444444444447,
+            "count": 90
+          }
+        ],
+        "isDown": false
+      },
+      "2025-03-29": {
+        "date": "2025-03-29",
+        "downtimeMs": 0,
+        "incidents": [],
+        "responseTimeIntervals": [
+          {
+            "startTime": 1743206400000,
+            "endTime": 1743208199999,
+            "avgResponseTime": 179.69999999999996,
+            "count": 90
+          },
+          {
+            "startTime": 1743208200000,
+            "endTime": 1743209999999,
+            "avgResponseTime": 173.94444444444446,
+            "count": 90
+          },
+          {
+            "startTime": 1743210000000,
+            "endTime": 1743211799999,
+            "avgResponseTime": 174.52222222222218,
+            "count": 90
+          },
+          {
+            "startTime": 1743211800000,
+            "endTime": 1743213599999,
+            "avgResponseTime": 160.48888888888888,
+            "count": 90
+          },
+          {
+            "startTime": 1743213600000,
+            "endTime": 1743215399999,
+            "avgResponseTime": 175.45555555555555,
+            "count": 90
+          },
+          {
+            "startTime": 1743215400000,
+            "endTime": 1743217199999,
+            "avgResponseTime": 142.49999999999997,
+            "count": 90
+          },
+          {
+            "startTime": 1743217200000,
+            "endTime": 1743218999999,
+            "avgResponseTime": 135.4111111111111,
+            "count": 90
+          },
+          {
+            "startTime": 1743219000000,
+            "endTime": 1743220799999,
+            "avgResponseTime": 126.74444444444444,
+            "count": 90
+          },
+          {
+            "startTime": 1743220800000,
+            "endTime": 1743222599999,
+            "avgResponseTime": 125.7,
+            "count": 90
+          },
+          {
+            "startTime": 1743222600000,
+            "endTime": 1743224399999,
+            "avgResponseTime": 127.17777777777776,
+            "count": 90
+          },
+          {
+            "startTime": 1743224400000,
+            "endTime": 1743226199999,
+            "avgResponseTime": 124.68888888888888,
+            "count": 90
+          },
+          {
+            "startTime": 1743226200000,
+            "endTime": 1743227999999,
+            "avgResponseTime": 128.5888888888889,
+            "count": 90
+          },
+          {
+            "startTime": 1743228000000,
+            "endTime": 1743229799999,
+            "avgResponseTime": 121.75555555555556,
+            "count": 90
+          },
+          {
+            "startTime": 1743229800000,
+            "endTime": 1743231599999,
+            "avgResponseTime": 124.15555555555555,
+            "count": 90
+          },
+          {
+            "startTime": 1743231600000,
+            "endTime": 1743233399999,
+            "avgResponseTime": 130.79999999999993,
+            "count": 90
+          },
+          {
+            "startTime": 1743233400000,
+            "endTime": 1743235199999,
+            "avgResponseTime": 143.31111111111116,
+            "count": 90
+          },
+          {
+            "startTime": 1743235200000,
+            "endTime": 1743236999999,
+            "avgResponseTime": 131.99999999999997,
+            "count": 90
+          },
+          {
+            "startTime": 1743237000000,
+            "endTime": 1743238799999,
+            "avgResponseTime": 137.9111111111111,
+            "count": 90
+          },
+          {
+            "startTime": 1743238800000,
+            "endTime": 1743240599999,
+            "avgResponseTime": 140.05128205128202,
+            "count": 39
+          }
+        ],
+        "isDown": false
+      }
+    },
+    "2": {
+      "2025-03-28": {
+        "date": "2025-03-28",
+        "downtimeMs": 0,
+        "incidents": [],
+        "responseTimeIntervals": [
+          {
+            "startTime": 1743201000000,
+            "endTime": 1743202799999,
+            "avgResponseTime": 141.42105263157893,
+            "count": 38
+          },
+          {
+            "startTime": 1743202800000,
+            "endTime": 1743204599999,
+            "avgResponseTime": 134.2555555555556,
+            "count": 90
+          },
+          {
+            "startTime": 1743204600000,
+            "endTime": 1743206399999,
+            "avgResponseTime": 123.5,
+            "count": 90
+          }
+        ],
+        "isDown": false
+      },
+      "2025-03-29": {
+        "date": "2025-03-29",
+        "downtimeMs": 0,
+        "incidents": [],
+        "responseTimeIntervals": [
+          {
+            "startTime": 1743206400000,
+            "endTime": 1743208199999,
+            "avgResponseTime": 124.72222222222223,
+            "count": 90
+          },
+          {
+            "startTime": 1743208200000,
+            "endTime": 1743209999999,
+            "avgResponseTime": 127.43333333333334,
+            "count": 90
+          },
+          {
+            "startTime": 1743210000000,
+            "endTime": 1743211799999,
+            "avgResponseTime": 126.7,
+            "count": 90
+          },
+          {
+            "startTime": 1743211800000,
+            "endTime": 1743213599999,
+            "avgResponseTime": 126.53333333333333,
+            "count": 90
+          },
+          {
+            "startTime": 1743213600000,
+            "endTime": 1743215399999,
+            "avgResponseTime": 171.96666666666664,
+            "count": 90
+          },
+          {
+            "startTime": 1743215400000,
+            "endTime": 1743217199999,
+            "avgResponseTime": 129.8888888888889,
+            "count": 90
+          },
+          {
+            "startTime": 1743217200000,
+            "endTime": 1743218999999,
+            "avgResponseTime": 131.69999999999996,
+            "count": 90
+          },
+          {
+            "startTime": 1743219000000,
+            "endTime": 1743220799999,
+            "avgResponseTime": 130.7222222222223,
+            "count": 90
+          },
+          {
+            "startTime": 1743220800000,
+            "endTime": 1743222599999,
+            "avgResponseTime": 130.77777777777763,
+            "count": 90
+          },
+          {
+            "startTime": 1743222600000,
+            "endTime": 1743224399999,
+            "avgResponseTime": 129.99999999999994,
+            "count": 90
+          },
+          {
+            "startTime": 1743224400000,
+            "endTime": 1743226199999,
+            "avgResponseTime": 127.86666666666663,
+            "count": 90
+          },
+          {
+            "startTime": 1743226200000,
+            "endTime": 1743227999999,
+            "avgResponseTime": 132.6111111111111,
+            "count": 90
+          },
+          {
+            "startTime": 1743228000000,
+            "endTime": 1743229799999,
+            "avgResponseTime": 138.60000000000002,
+            "count": 90
+          },
+          {
+            "startTime": 1743229800000,
+            "endTime": 1743231599999,
+            "avgResponseTime": 125.85555555555555,
+            "count": 90
+          },
+          {
+            "startTime": 1743231600000,
+            "endTime": 1743233399999,
+            "avgResponseTime": 126.6222222222223,
+            "count": 90
+          },
+          {
+            "startTime": 1743233400000,
+            "endTime": 1743235199999,
+            "avgResponseTime": 106.87777777777778,
+            "count": 90
+          },
+          {
+            "startTime": 1743235200000,
+            "endTime": 1743236999999,
+            "avgResponseTime": 115.34444444444445,
+            "count": 90
+          },
+          {
+            "startTime": 1743237000000,
+            "endTime": 1743238799999,
+            "avgResponseTime": 129.4666666666667,
+            "count": 90
+          },
+          {
+            "startTime": 1743238800000,
+            "endTime": 1743240599999,
+            "avgResponseTime": 130.28205128205124,
+            "count": 39
+          }
+        ],
+        "isDown": false
+      }
+    },
+    "3": {
+      "2025-03-28": {
+        "date": "2025-03-28",
+        "downtimeMs": 0,
+        "incidents": [
+          {
+            "startTime": 1743202033374,
+            "endTime": null
+          }
+        ],
+        "responseTimeIntervals": [],
+        "isDown": true
+      },
+      "2025-03-29": {
+        "date": "2025-03-29",
+        "downtimeMs": 0,
+        "incidents": [
+          {
+            "startTime": 1743206414038,
+            "endTime": null
+          }
+        ],
+        "responseTimeIntervals": [],
+        "isDown": true
+      }
+    }
+  }
+}

@@ -26,9 +26,9 @@ export default function Nav() {
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.2 }}
             >
-              <Tornado className="h-5 w-5 text-blue-600" />
+              <Tornado className="h-5 w-5 text-black" />
             </motion.div>
-            <span className="text-base font-medium text-gray-900">Storm</span>
+            <span className="text-base font-medium text-black">Storm</span>
           </Link>
 
           {/* Main navigation */}
@@ -41,14 +41,14 @@ export default function Nav() {
                     <Link href={link.href} className="relative px-1 py-3 block">
                       <span
                         className={`text-sm font-medium ${
-                          isActive ? "text-blue-600" : "text-gray-600 hover:text-gray-900"
+                          isActive ? "text-black" : "text-gray-600 hover:text-gray-900"
                         }`}
                       >
                         {link.label}
                       </span>
                       {isActive && (
                         <motion.div
-                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"
+                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-black"
                           layoutId="activeIndicator"
                           transition={{ duration: 0.2 }}
                         />
