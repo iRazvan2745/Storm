@@ -145,20 +145,14 @@ export class MonitorAgent {
           throw new Error(`Invalid targets data received from server`);
         }
         
-        // Ensure all target IDs are numbers
-        const processedTargets = data.targets.map(target => ({
-          ...target,
-          id: typeof target.id === 'string' ? parseInt(target.id, 10) : target.id
-        }));
-        
         const oldTargetCount = this.targets.length;
-        this.updateTargets(processedTargets);
+        this.updateTargets(data.targets);
         
         // Log detailed information about the targets
-        const newTargets = processedTargets.filter(t => !this.targets.some(existing => existing.id === t.id));
-        const removedTargets = this.targets.filter(t => !processedTargets.some(newTarget => newTarget.id === t.id));
+        const newTargets = data.targets.filter(t => !this.targets.some(existing => existing.id === t.id));
+        const removedTargets = this.targets.filter(t => !data.targets.some(newTarget => newTarget.id === t.id));
         
-        logInfo(`Successfully fetched ${processedTargets.length} targets from server (${oldTargetCount} before, ${this.targets.length} after)`);
+        logInfo(`Successfully fetched ${data.targets.length} targets from server (${oldTargetCount} before, ${this.targets.length} after)`);
         
         if (newTargets.length > 0) {
             logInfo(`New targets: ${newTargets.map(t => `${t.name} (${t.id})`).join(', ')}`);
@@ -235,11 +229,8 @@ export class MonitorAgent {
         const endTime = Date.now();
         const responseTime = endTime - startTime;
         
-        // Ensure targetId is a number
-        const targetId = typeof target.id === 'string' ? parseInt(target.id, 10) : target.id;
-        
         const result: CheckResult = {
-          targetId: targetId,
+          targetId: target.id,
           timestamp: endTime,
           success: response.ok,
           statusCode: response.status,
@@ -274,11 +265,8 @@ export class MonitorAgent {
         
         logWarning(`Target ${target.name} (${target.id}) is DOWN. Error: ${errorMessage}`);
         
-        // Ensure targetId is a number
-        const targetId = typeof target.id === 'string' ? parseInt(target.id, 10) : target.id;
-        
         const result: CheckResult = {
-          targetId: targetId,
+          targetId: target.id,
           timestamp: endTime,
           success: false,
           statusCode: isTimeout ? 408 : 0,
@@ -307,10 +295,7 @@ export class MonitorAgent {
   private async submitResult(result: CheckResult): Promise<void> {
     const maxRetries = 3;
     let retries = 0;
-    
-    // Ensure targetId is a number
-    const targetId = typeof result.targetId === 'string' ? parseInt(result.targetId as unknown as string, 10) : result.targetId;
-    result.targetId = targetId;
+    const targetId = result.targetId;
     
     while (retries < maxRetries) {
       try {

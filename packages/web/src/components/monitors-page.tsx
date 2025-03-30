@@ -176,13 +176,10 @@ function MonitorsPage() {
                 <div>
                   <h3 className="text-base font-medium">{targetName}</h3>
                 </div>
-                <button className="text-xs text-gray-500 hover:text-gray-700 flex items-center">
-                  Details <ArrowRight className="ml-1 h-3 w-3" />
-                </button>
               </div>
               <LatencyChart 
                 key={targetId} 
-                targetName={targetName} 
+                targetName="" 
                 data={data} 
                 color={chartColors[index % chartColors.length]} 
               />

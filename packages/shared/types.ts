@@ -1,6 +1,7 @@
 export interface Target {
   id: number;
   url: string;
+  type: 'http' | 'icmp';
   name: string;
   interval: number; // in milliseconds
   timeout: number; // in milliseconds
