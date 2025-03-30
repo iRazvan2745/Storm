@@ -23,7 +23,7 @@ export default function StatusPage({ statusData, title = "", description = "", s
   const allDates = getLast45Days(statusData)
 
   return (
-    <div className="w-full h-full space-y-1">
+    <div className="w-full space-y-1">
       {(title || description || showLegend) && (
         <div className="flex items-center justify-between mb-2">
           {(title || description) && (
@@ -41,7 +41,7 @@ export default function StatusPage({ statusData, title = "", description = "", s
             const dateStr = formatDateKey(date)
             const hasData = statusData[dateStr] !== undefined
 
-              return (
+            return (
               <UptimePill
                 key={dateStr}
                 date={dateStr}
