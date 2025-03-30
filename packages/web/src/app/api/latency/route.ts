@@ -17,11 +17,11 @@ export async function GET() {
     }
 
     const data = await serverResponse.json();
-
-    // Format the response
+    
+    // Return the latency data directly from the server response
     return NextResponse.json({
-      latencyData: data.results || {},
-      success: true
+      success: data.success,
+      latencyData: data.latencyData || {}
     });
   } catch (error) {
     return NextResponse.json({

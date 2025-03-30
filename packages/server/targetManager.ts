@@ -9,7 +9,7 @@ export class TargetManager {
   private configPath: string;
   private watcher: ReturnType<typeof watch> | null = null;
   private lastTargetId: number = 0;
-  private lastUpdated: number = Date.now(); // Timestamp when targets were last updated
+  private lastUpdated: number = Date.now();
 
   constructor(configDir = './data/config') {
     this.configPath = resolve(configDir, 'targets.json');
@@ -26,10 +26,15 @@ export class TargetManager {
           const validTargets = data.targets.filter((target: any) => 
             target && 
             (typeof target.id === 'number' || typeof target.id === 'string') && 
-            typeof target.url === 'string' && 
             typeof target.name === 'string' && 
             typeof target.interval === 'number' && 
-            typeof target.timeout === 'number'
+            typeof target.timeout === 'number' &&
+            (
+              // Validate HTTP targets
+              (target.type === 'http' && typeof target.url === 'string') ||
+              // Validate ICMP targets
+              (target.type === 'icmp' && typeof target.host === 'string')
+            )
           );
           
           if (validTargets.length !== data.targets.length) {
@@ -46,7 +51,6 @@ export class TargetManager {
             const oldTarget = this.targets.find(old => old.id === t.id);
             if (!oldTarget) return false;
             
-            // Check if any properties have changed
             return JSON.stringify(t) !== JSON.stringify(oldTarget);
           });
           
@@ -88,9 +92,7 @@ export class TargetManager {
     }
   }
   
-  // Update the last target ID based on existing targets
   private updateLastTargetId(): void {
-    // Find the highest numeric ID
     this.lastTargetId = this.targets.reduce((maxId, target) => {
       const id = typeof target.id === 'number' ? target.id : parseInt(String(target.id), 10);
       return !isNaN(id) && id > maxId ? id : maxId;
@@ -99,7 +101,6 @@ export class TargetManager {
     logInfo(`Last target ID updated to ${this.lastTargetId}`);
   }
 
-  // Generate a new incremental target ID
   private generateTargetId(): number {
     this.lastTargetId++;
     return this.lastTargetId;
@@ -118,10 +119,9 @@ export class TargetManager {
 
       this.watcher.on('change', async () => {
         logInfo(`Targets configuration file changed at ${this.configPath}`);
-        const oldTargets = [...this.targets]; // Make a copy for comparison
+        const oldTargets = [...this.targets];
         
         await this.loadTargetsFromFile();
-        // The lastUpdated timestamp is updated in loadTargetsFromFile
         logInfo(`Targets updated at ${new Date(this.lastUpdated).toISOString()}`);
       });
 
@@ -132,28 +132,22 @@ export class TargetManager {
   }
 
   public addTarget(target: Target): void {
-    // Check if target already exists
     const existingIndex = this.targets.findIndex(t => t.id === target.id);
     
     if (existingIndex !== -1) {
-      // Update existing target
       this.targets[existingIndex] = target;
-      logInfo(`Updated target: ${target.name} (${target.url})`);
+      logInfo(`Updated target: ${target.name} (${target.url || target.host})`);
     } else {
-      // Create a new target with incremental ID if none provided
       const newTarget = {
         ...target,
         id: target.id && target.id !== 0 ? target.id : this.generateTargetId()
       };
       
       this.targets.push(newTarget);
-      logInfo(`Added target: ${newTarget.name} (${newTarget.url}) with ID ${newTarget.id}`);
+      logInfo(`Added target: ${newTarget.name} (${newTarget.url || newTarget.host}) with ID ${newTarget.id}`);
     }
     
-    // Update the lastUpdated timestamp
     this.lastUpdated = Date.now();
-    
-    // Save to file
     this.saveTargetsToFile();
   }
 
@@ -174,9 +168,7 @@ export class TargetManager {
     const removed = this.targets.length < initialLength;
     
     if (removed) {
-      // Update the lastUpdated timestamp
       this.lastUpdated = Date.now();
-      
       logInfo(`Removed target with ID: ${targetId}`);
       this.saveTargetsToFile();
     } else {
@@ -190,12 +182,9 @@ export class TargetManager {
     const target = this.targets.find(t => t.id === targetId);
     if (target) {
       Object.assign(target, updates);
-      logInfo(`Updated target: ${target.name} (${target.url})`);
+      logInfo(`Updated target: ${target.name} (${target.url || target.host})`);
       
-      // Update the lastUpdated timestamp
       this.lastUpdated = Date.now();
-      
-      // Save to file
       this.saveTargetsToFile();
     }
   }
@@ -223,7 +212,6 @@ export class TargetManager {
     }
   }
 
-  // Get the timestamp when targets were last updated
   public getLastUpdated(): number {
     return this.lastUpdated;
   }

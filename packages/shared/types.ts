@@ -5,6 +5,7 @@ export interface Target {
   name: string;
   interval: number; // in milliseconds
   timeout: number; // in milliseconds
+  host?: string; // For ICMP targets, this is the hostname/IP to ping
 }
 
 export interface CheckResult {

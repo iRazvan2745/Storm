@@ -14,7 +14,7 @@ export default function SubscribeButton() {
         Subscribe
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem>Subscribe to all monitors</DropdownMenuItem>
+        <DropdownMenuItem>Soon</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

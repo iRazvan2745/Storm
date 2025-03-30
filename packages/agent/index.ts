@@ -1,5 +1,6 @@
 import type { Agent, AgentConfig, CheckResult, Target } from '@storm/shared';
 import { logInfo, logError, logWarning, generateId } from '@storm/shared';
+import { ICMPMonitor } from './icmpMonitor';
 
 export class MonitorAgent {
   private agent: Agent;
@@ -7,7 +8,7 @@ export class MonitorAgent {
   private targets: Target[] = [];
   private isRunning = false;
   private checkIntervals: Map<string, NodeJS.Timeout> = new Map();
-  private lastTargetsUpdate: number = 0; // Track when targets were last updated
+  private lastTargetsUpdate: number = 0;
 
   constructor(config: AgentConfig) {
     this.config = config;
@@ -27,18 +28,12 @@ export class MonitorAgent {
       logInfo(`Starting agent ${this.agent.name} (${this.agent.id || 'unregistered'}) at ${this.agent.location}`);
       logInfo(`Connecting to server at ${this.config.serverUrl}`);
       
-      // Always register with the server on startup
       await this.register();
-      
-      // Start heartbeat
       this.startHeartbeat();
-
-      // Start checking targets
+      
       logInfo(`Fetching targets from server...`);
       await this.fetchTargets();
       this.startTargetChecks();
-      
-      // Start checking for target updates
       this.startTargetUpdateChecks();
 
       this.isRunning = true;
@@ -67,7 +62,6 @@ export class MonitorAgent {
     });
 
     try {
-      // Use retry logic for registration
       const response = await this.retryFetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -111,9 +105,8 @@ export class MonitorAgent {
       } catch (error) {
         logError(`Heartbeat failed: ${error}`);
       }
-    }, 30000); // Send heartbeat every 30 seconds
+    }, 30000);
     
-    // Store the interval so it can be cleared when stopping the agent
     this.checkIntervals.set('heartbeat', heartbeatInterval);
   }
 
@@ -131,7 +124,6 @@ export class MonitorAgent {
               'Content-Type': 'application/json',
               'x-agent-id': this.agent.id
             },
-            // Add timeout to prevent hanging requests
             signal: AbortSignal.timeout(10000)
           }
         );
@@ -148,7 +140,6 @@ export class MonitorAgent {
         const oldTargetCount = this.targets.length;
         this.updateTargets(data.targets);
         
-        // Log detailed information about the targets
         const newTargets = data.targets.filter(t => !this.targets.some(existing => existing.id === t.id));
         const removedTargets = this.targets.filter(t => !data.targets.some(newTarget => newTarget.id === t.id));
         
@@ -162,21 +153,19 @@ export class MonitorAgent {
             logInfo(`Removed targets: ${removedTargets.map(t => `${t.name} (${t.id})`).join(', ')}`);
         }
         
-        // Store the last update timestamp
         this.lastTargetsUpdate = data.lastUpdated || Date.now();
         logInfo(`Targets last updated at: ${new Date(this.lastTargetsUpdate).toISOString()}`);
         
-        return; // Success, exit the retry loop
+        return;
       } catch (error) {
         retries++;
-        const waitTime = Math.min(1000 * Math.pow(2, retries), 10000); // Exponential backoff with max 10s
+        const waitTime = Math.min(1000 * Math.pow(2, retries), 10000);
         
         if (retries >= maxRetries) {
           logError(`Failed to fetch targets after ${maxRetries} attempts: ${error}`);
           throw error;
         } else {
           logWarning(`Failed to fetch targets (attempt ${retries}/${maxRetries}): ${error}. Retrying in ${waitTime}ms...`);
-          // Wait before retrying
           await new Promise(resolve => setTimeout(resolve, waitTime));
         }
       }
@@ -184,20 +173,17 @@ export class MonitorAgent {
   }
 
   private updateTargets(newTargets: Target[]): void {
-    // Clear existing intervals
     logInfo(`Updating targets: clearing ${this.checkIntervals.size} existing monitoring tasks`);
     this.checkIntervals.forEach((interval) => clearInterval(interval));
     this.checkIntervals.clear();
 
-    // Update targets and start new checks
     this.targets = newTargets;
     logInfo(`Setting up ${this.targets.length} new targets for monitoring`);
     this.targets.forEach((target) => this.startTargetCheck(target));
     logInfo(`Target update complete: ${this.targets.length} targets configured`);
     
-    // Log details of each target
     this.targets.forEach((target) => {
-      logInfo(`Target configured: ${target.name} (${target.id}) - URL: ${target.url}, Interval: ${target.interval}ms, Timeout: ${target.timeout}ms`);
+      logInfo(`Target configured: ${target.name} (${target.id}) - ${target.type === 'icmp' ? 'ICMP' : 'HTTP'} - ${target.type === 'icmp' ? target.host : target.url}, Interval: ${target.interval}ms, Timeout: ${target.timeout}ms`);
     });
   }
 
@@ -206,43 +192,56 @@ export class MonitorAgent {
   }
 
   private startTargetCheck(target: Target): void {
-    logInfo(`Setting up monitoring for target: ${target.name} (${target.id}) with interval ${target.interval}ms`);
+    logInfo(`Setting up monitoring for target: ${target.name} (${target.id}) - Type: ${target.type}`);
     
     const check = async () => {
       if (!this.isRunning) return;
 
       const startTime = Date.now();
-      logInfo(`Checking target: ${target.name} (${target.id}) at ${target.url}`);
-      
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), target.timeout);
+      logInfo(`Checking target: ${target.name} (${target.id}) - ${target.type === 'icmp' ? 'ICMP' : 'HTTP'}`);
 
       try {
-        const response = await fetch(target.url, {
-          method: 'GET',
-          headers: { 'User-Agent': `Storm/${this.agent.name}` },
-          signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-        
-        const endTime = Date.now();
-        const responseTime = endTime - startTime;
-        
-        const result: CheckResult = {
-          targetId: target.id,
-          timestamp: endTime,
-          success: response.ok,
-          statusCode: response.status,
-          responseTime,
-          error: response.ok ? undefined : `HTTP ${response.status}: ${response.statusText}`,
-          agentId: this.agent.id
-        };
-        
-        if (response.ok) {
-          logInfo(`Target ${target.name} (${target.id}) is UP. Response time: ${responseTime}ms, Status: ${response.status}`);
+        let result: CheckResult;
+
+        if (target.type === 'icmp') {
+          const icmpMonitor = new ICMPMonitor(target, this.agent.id);
+          result = await icmpMonitor.check();
         } else {
-          logWarning(`Target ${target.name} (${target.id}) returned error status. Response time: ${responseTime}ms, Status: ${response.status} ${response.statusText}`);
+          // HTTP monitoring
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), target.timeout);
+
+          try {
+            const response = await fetch(target.url, {
+              method: 'GET',
+              headers: { 'User-Agent': `Storm/${this.agent.name}` },
+              signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            
+            const endTime = Date.now();
+            const responseTime = endTime - startTime;
+            
+            result = {
+              targetId: target.id,
+              timestamp: endTime,
+              success: response.ok,
+              statusCode: response.status,
+              responseTime,
+              error: response.ok ? undefined : `HTTP ${response.status}: ${response.statusText}`,
+              agentId: this.agent.id
+            };
+          } catch (error) {
+            clearTimeout(timeoutId);
+            throw error;
+          }
+        }
+        
+        if (result.success) {
+          logInfo(`Target ${target.name} (${target.id}) is UP. Response time: ${result.responseTime}ms${result.statusCode ? `, Status: ${result.statusCode}` : ''}`);
+        } else {
+          logWarning(`Target ${target.name} (${target.id}) is DOWN. ${result.error}`);
         }
         
         try {
@@ -252,12 +251,9 @@ export class MonitorAgent {
           logError(`Failed to submit result for target ${target.name} (${target.id}): ${error}`);
         }
       } catch (error) {
-        clearTimeout(timeoutId);
-        
         const endTime = Date.now();
         const responseTime = endTime - startTime;
         
-        // Determine if it's a timeout or another error
         const isTimeout = error instanceof DOMException && error.name === 'AbortError';
         const errorMessage = isTimeout
           ? `Request timed out after ${target.timeout}ms`
@@ -283,12 +279,10 @@ export class MonitorAgent {
       }
     };
 
-    // Start the interval and store it
     const interval = setInterval(check, target.interval);
     this.checkIntervals.set(target.id.toString(), interval);
     logInfo(`Monitoring started for target: ${target.name} (${target.id}) - Interval: ${target.interval}ms`);
 
-    // Run first check immediately
     check();
   }
 
@@ -306,8 +300,7 @@ export class MonitorAgent {
             'Content-Type': 'application/json',
             'x-agent-id': this.agent.id
           },
-          body: JSON.stringify({ results: [result] }), // Wrap the result in a 'results' object as expected by the server
-          // Add timeout to prevent hanging requests
+          body: JSON.stringify({ results: [result] }),
           signal: AbortSignal.timeout(10000)
         });
 
@@ -316,17 +309,16 @@ export class MonitorAgent {
         }
         
         logInfo(`Successfully submitted result for target ${targetId}`);
-        return; // Success, exit the retry loop
+        return;
       } catch (error) {
         retries++;
-        const waitTime = Math.min(1000 * Math.pow(2, retries), 10000); // Exponential backoff with max 10s
+        const waitTime = Math.min(1000 * Math.pow(2, retries), 10000);
         
         if (retries >= maxRetries) {
           logError(`Failed to submit result for target ${targetId} after ${maxRetries} attempts: ${error}`);
           throw new Error(`Failed to submit result after ${maxRetries} attempts: ${error}`);
         } else {
           logWarning(`Failed to submit result for target ${targetId} (attempt ${retries}/${maxRetries}): ${error}. Retrying in ${waitTime}ms...`);
-          // Wait before retrying
           await new Promise(resolve => setTimeout(resolve, waitTime));
         }
       }
@@ -342,30 +334,25 @@ export class MonitorAgent {
         return await fetch(url, options);
       } catch (error) {
         retries++;
-        const waitTime = Math.min(1000 * Math.pow(2, retries), 10000); // Exponential backoff with max 10s
+        const waitTime = Math.min(1000 * Math.pow(2, retries), 10000);
         
         if (retries >= maxRetries) {
           throw error;
         } else {
           logWarning(`Fetch failed (attempt ${retries}/${maxRetries}): ${error}. Retrying in ${waitTime}ms...`);
-          // Wait before retrying
           await new Promise(resolve => setTimeout(resolve, waitTime));
         }
       }
     }
     
-    // This should never be reached due to the throw in the loop above
     throw new Error('Failed to fetch after maximum retries');
   }
 
-  // Start checking for target updates periodically
   private startTargetUpdateChecks(): void {
-    // Check for target updates every 2 minutes
     const updateCheckInterval = setInterval(async () => {
       if (!this.isRunning) return;
       
       try {
-        // Ensure lastTargetsUpdate is a valid number before creating a Date
         const lastUpdateTime = this.lastTargetsUpdate > 0 
           ? new Date(this.lastTargetsUpdate).toISOString() 
           : 'never';
@@ -378,7 +365,6 @@ export class MonitorAgent {
               'Content-Type': 'application/json',
               'x-agent-id': this.agent.id
             },
-            // Add timeout to prevent hanging requests
             signal: AbortSignal.timeout(10000)
           }
         );
@@ -390,7 +376,6 @@ export class MonitorAgent {
 
         const data = await response.json() as { hasUpdates: boolean, lastUpdated: number };
         
-        // Ensure lastUpdated from server is a valid number
         const serverLastUpdated = typeof data.lastUpdated === 'number' && !isNaN(data.lastUpdated) 
           ? data.lastUpdated 
           : Date.now();
@@ -398,14 +383,11 @@ export class MonitorAgent {
         if (data.hasUpdates) {
           logInfo(`Target updates available. Server last updated: ${new Date(serverLastUpdated).toISOString()}`);
           
-          // Stop current target checks
           this.stopTargetChecks();
           logInfo(`Stopped monitoring for ${this.targets.length} targets to apply updates`);
           
-          // Fetch new targets
           await this.fetchTargets();
           
-          // Restart target checks with new targets
           this.startTargetChecks();
           
           logInfo(`Successfully updated targets. Now monitoring ${this.targets.length} targets.`);
@@ -415,16 +397,13 @@ export class MonitorAgent {
       } catch (error) {
         logError(`Error checking for target updates: ${error}`);
       }
-    }, 120000); // Check every 2 minutes
+    }, 120000);
     
-    // Store the interval so it can be cleared when stopping the agent
     this.checkIntervals.set('targetUpdates', updateCheckInterval);
     logInfo(`Started periodic target update checks every 2 minutes`);
   }
   
-  // Stop all target checks
   private stopTargetChecks(): void {
-    // Clear all intervals except heartbeat and targetUpdates
     this.checkIntervals.forEach((interval, key) => {
       if (key !== 'heartbeat' && key !== 'targetUpdates') {
         clearInterval(interval);

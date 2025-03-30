@@ -42,16 +42,34 @@ Example configuration:
 {
   "targets": [
     {
-      "id": "google-monitor",
+      "id": 1,
       "url": "https://google.com",
+      "type": "http",
       "name": "Google",
       "interval": 60000,
       "timeout": 5000
     },
     {
-      "id": "github-monitor",
+      "id": 2,
       "url": "https://github.com",
+      "type": "http",
       "name": "GitHub",
+      "interval": 60000,
+      "timeout": 5000
+    },
+    {
+      "id": 3,
+      "type": "icmp",
+      "name": "Cloudflare DNS",
+      "host": "1.1.1.1",
+      "interval": 60000,
+      "timeout": 5000
+    },
+    {
+      "id": 4,
+      "type": "icmp",
+      "name": "Google DNS",
+      "host": "8.8.8.8",
       "interval": 60000,
       "timeout": 5000
     }
