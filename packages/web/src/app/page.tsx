@@ -164,15 +164,13 @@ export default function Home() {
                         <h2 className="text-base font-medium text-gray-800 dark:text-gray-200">
                           {targetMap[targetId] || `Target ${targetId}`}
                         </h2>
-                        <button className="ml-1 text-gray-400 hover:text-gray-500">
-                          <Info className="h-4 w-4" />
-                          <span className="sr-only">Info</span>
-                        </button>
+                        <span className="ml-3 text-sm text-gray-500">{uptimePercentage}%</span>
                       </div>
-                      <span className="text-sm text-gray-500">{uptimePercentage}%</span>
                     </div>
-                    {/* Render the 45-day history */}
-                    <StatusPage statusData={data} title="" description="" showLegend />
+                    <div className="">
+                      {/* Render the 45-day history */}
+                      <StatusPage statusData={data} title="" description="" showLegend />
+                    </div>
                   </div>
                 )
               })}

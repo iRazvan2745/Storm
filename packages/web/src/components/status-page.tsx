@@ -1,7 +1,6 @@
 "use client"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
-import formatDuration from "date-fns/formatDuration"
 import { formatDowntime } from "./uptime-timeline"
 
 export type StatusData = {
@@ -24,7 +23,7 @@ export default function StatusPage({ statusData, title = "", description = "", s
   const allDates = getLast45Days(statusData)
 
   return (
-    <div className="w-full space-y-1">
+    <div className="w-full h-full space-y-1">
       {(title || description || showLegend) && (
         <div className="flex items-center justify-between mb-2">
           {(title || description) && (
@@ -42,7 +41,7 @@ export default function StatusPage({ statusData, title = "", description = "", s
             const dateStr = formatDateKey(date)
             const hasData = statusData[dateStr] !== undefined
 
-            return (
+              return (
               <UptimePill
                 key={dateStr}
                 date={dateStr}
@@ -151,7 +150,7 @@ function UptimePill({
       <TooltipTrigger asChild>
         <div
           className={cn(
-            "w-[6px] sm:w-[8px] h-[30px] rounded-[3px] transition-all hover:scale-110 cursor-pointer",
+            "w-[12px] sm:w-[16px] h-[30px] rounded-[3px] transition-all hover:scale-110 cursor-pointer",
             statusColor
           )}
           aria-label={`Status for ${formattedDate}: ${status}`}

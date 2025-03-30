@@ -1,9 +1,21 @@
 import { NextResponse } from "next/server"
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    // Get date from query parameters, if any
+    const url = new URL(request.url);
+    const targetId = url.searchParams.get('targetId');
+    const date = url.searchParams.get('date');
+    
+    // Build the URL with query parameters
+    let apiUrl = "http://localhost:3000/api/latency";
+    const params = new URLSearchParams();
+    if (targetId) params.append('targetId', targetId);
+    if (date) params.append('date', date);
+    if (params.toString()) apiUrl += `?${params.toString()}`;
+    
     // Fetch results data from the Storm server
-    const resultsResponse = await fetch("http://localhost:3000/api/latency", {
+    const resultsResponse = await fetch(apiUrl, {
       headers: {
         "Content-Type": "application/json",
       },
