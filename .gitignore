@@ -33,3 +33,4 @@ bun.lock
 *.lock
 bun.lock
 *.lock
+*.lock
