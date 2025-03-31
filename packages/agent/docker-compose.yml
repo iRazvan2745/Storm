@@ -1,0 +1,10 @@
+services:
+  agent:
+    build: .
+    ports:
+      - 3000:3000
+    environment:
+      - AGENT_NAME='Agent-1'
+      - AGENT_LOCATION='EU-SouthEast'
+      - SERVER_URL='host.docker.internal:3000'
+      - CHECK_INTERVAL=60000 # default value

@@ -30,10 +30,7 @@ bun.lock
 
 # Finder (MacOS) folder config
 .DS_Store
-*.lock
 bun.lock
 *.lock
-*.lock
 bun.lock
-/packages/server/data/db
-/packages/server/data/db
+/packages/server/data/*

@@ -4,6 +4,15 @@ import { useEffect, useState } from "react"
 import { UptimeStatusCard } from "./uptime-status-card"
 import { Skeleton } from "@/components/ui/skeleton"
 
+interface TargetStatus {
+  targetId: number;
+  isDown: boolean;
+  agentsReporting: {
+    [agentId: string]: boolean; // true = reporting down, false = reporting up
+  };
+  lastUpdated: number;
+}
+
 type StatusData = {
   [date: string]: {
     isDown: boolean
@@ -16,7 +25,7 @@ type ApiResponse = {
   results: {
     [targetId: string]: StatusData
   }
-  currentStatus: any[]
+  currentStatus: TargetStatus[]
   targetMap: {
     [targetId: string]: string
   }

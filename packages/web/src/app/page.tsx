@@ -1,17 +1,24 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { CheckCircle, AlertTriangle, XCircle, Loader2, Info } from "lucide-react"
+import { CheckCircle, AlertTriangle, XCircle } from "lucide-react"
 import StatusPage from "@/components/status-page"
 import type { StatusData } from "@/components/status-page"
-import Link from "next/link"
 import Nav from "@/components/nav"
 import Footer from "@/components/footer"
-import { Skeleton } from "@/components/skeleton"
+
+type TargetStatus = {
+  isDown: boolean
+  targetId: string
+  targetName: string
+  lastCheckTime: number
+  responseTime?: number
+  error?: string
+}
 
 type ApiResponse = {
   results: Record<string, StatusData>
-  currentStatus: any[]
+  currentStatus: TargetStatus[]
   targetMap: Record<string, string>
 }
 
@@ -50,7 +57,7 @@ export default function Home() {
     fetchData()
   }, [])
 
-  // Calculate overall system status based on each target’s most recent day.
+  // Calculate overall system status based on each target's most recent day.
   const getSystemStatus = () => {
     if (Object.keys(statusData).length === 0) return "unknown"
 
@@ -110,14 +117,14 @@ export default function Home() {
   const StatusIcon = statusConfig[systemStatus].icon
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
+    <div className="min-h-screen flex flex-col bg-white">
       <Nav />
 
       <main className="flex-grow">
         <div className="max-w-3xl mx-auto px-4 py-8 mt-8 sm:px-6 border rounded-xl">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">System Status</h1>
-            <p className="mt-1 text-gray-600 dark:text-gray-400">
+            <h1 className="text-2xl font-bold text-gray-900">System Status</h1>
+            <p className="mt-1 text-gray-600">
               Monitor the performance and uptime of our services
             </p>
           </div>
@@ -161,7 +168,7 @@ export default function Home() {
                   <div key={targetId} className="pb-6">
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center">
-                        <h2 className="text-base font-medium text-gray-800 dark:text-gray-200">
+                        <h2 className="text-base font-medium text-gray-800">
                           {targetMap[targetId] || `Target ${targetId}`}
                         </h2>
                       </div>

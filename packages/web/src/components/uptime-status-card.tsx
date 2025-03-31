@@ -74,7 +74,7 @@ function calculateUptimePercentage(statusData: StatusData): number {
   const dates = Object.keys(statusData)
   if (dates.length === 0) return 100
   
-  let totalDays = dates.length
+  const totalDays = dates.length
   let downDays = 0
   
   for (const date of dates) {

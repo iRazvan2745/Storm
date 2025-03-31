@@ -127,7 +127,7 @@ function UptimePill({
 
   // Determine status and styling based on the data.
   let status = ""
-  let statusColor = "bg-gray-200 dark:bg-gray-700"
+  let statusColor = "bg-gray-200"
   let statusTextColor = ""
   if (hasRealData) {
     if (isDown) {
@@ -156,14 +156,14 @@ function UptimePill({
           aria-label={`Status for ${formattedDate}: ${status}`}
         />
       </TooltipTrigger>
-      <TooltipContent side="top" className="p-2 bg-white dark:bg-gray-900 shadow-lg rounded-lg border">
+      <TooltipContent side="top" className="p-2 bg-white shadow-lg rounded-lg border">
         <div className="flex items-center gap-2">
           <div className={cn("h-8 w-1 rounded-full", statusColor)}></div>
           <div className="flex flex-col">
-            <span className={cn("text-sm font-medium text-black dark:text-white", statusTextColor)}>
+            <span className={cn("text-sm font-medium text-black", statusTextColor)}>
               {hasRealData ? status : "No data"}
             </span>
-            <span className={cn("text-sm font-medium text-black dark:text-white")}>
+            <span className={cn("text-sm font-medium text-black")}>
               {hasRealData && downtimeMs > 0 ? formatDowntime(downtimeMs) : "No downtime"}
             </span>
           </div>

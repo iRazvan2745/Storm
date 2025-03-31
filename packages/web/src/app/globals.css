@@ -1,8 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -22,7 +20,7 @@
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
-  --color-input: var(--input);
+  --color-input: var(--input);  
   --color-border: var(--border);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
@@ -112,15 +110,6 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
 /* Custom tooltip arrow with rhombus shape */
 [data-radix-popper-content-wrapper] {
   --radix-tooltip-arrow-width: 10px;
@@ -132,14 +121,13 @@
   position: absolute;
   width: var(--radix-tooltip-arrow-width);
   height: var(--radix-tooltip-arrow-width);
-  background: var(--tooltip-bg, white); /* Use a CSS variable for background */
+  background: var(--tooltip-bg, white);
   transform: rotate(45deg);
-  /* Adjust positioning based on tooltip side */
 }
 
 /* Ensure tooltip content background matches */
 [data-radix-popper-content-wrapper] [data-radix-tooltip-content] {
-  --tooltip-bg: hsl(var(--popover)); /* Match popover background from shadcn/ui */
+  --tooltip-bg: hsl(var(--popover));
   background: var(--tooltip-bg);
   border-radius: var(--radius);
   box-shadow: var(--shadow-md);
@@ -147,28 +135,28 @@
 
 /* Positioning for top tooltip */
 [data-radix-popper-content-wrapper][data-side="top"] [data-radix-tooltip-arrow]::before {
-  bottom: calc(var(--radix-tooltip-arrow-height) * -0.707); /* Adjust for rotation */
+  bottom: calc(var(--radix-tooltip-arrow-height) * -0.707);
   left: 50%;
   transform: translateX(-50%) rotate(45deg);
 }
 
 /* Positioning for bottom tooltip */
 [data-radix-popper-content-wrapper][data-side="bottom"] [data-radix-tooltip-arrow]::before {
-  top: calc(var(--radix-tooltip-arrow-height) * -0.707); /* Adjust for rotation */
+  top: calc(var(--radix-tooltip-arrow-height) * -0.707);
   left: 50%;
   transform: translateX(-50%) rotate(45deg);
 }
 
 /* Positioning for left tooltip */
 [data-radix-popper-content-wrapper][data-side="left"] [data-radix-tooltip-arrow]::before {
-  right: calc(var(--radix-tooltip-arrow-height) * -0.707); /* Adjust for rotation */
+  right: calc(var(--radix-tooltip-arrow-height) * -0.707);
   top: 50%;
   transform: translateY(-50%) rotate(45deg);
 }
 
 /* Positioning for right tooltip */
 [data-radix-popper-content-wrapper][data-side="right"] [data-radix-tooltip-arrow]::before {
-  left: calc(var(--radix-tooltip-arrow-height) * -0.707); /* Adjust for rotation */
+  left: calc(var(--radix-tooltip-arrow-height) * -0.707);
   top: 50%;
   transform: translateY(-50%) rotate(45deg);
 }

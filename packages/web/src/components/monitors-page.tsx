@@ -22,20 +22,24 @@ type Target = {
 }
 
 // Memoized loading skeleton component
-const LoadingSkeleton = React.memo(() => (
-  <div className="space-y-6">
-    {[1, 2, 3, 4].map((i) => (
-      <div key={i} className="h-[120px] bg-gray-100 animate-pulse rounded-md"></div>
-    ))}
-  </div>
-));
+const LoadingSkeleton = React.memo(function LoadingSkeleton() {
+  return (
+    <div className="space-y-6">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="h-[120px] bg-gray-100 animate-pulse rounded-md"></div>
+      ))}
+    </div>
+  );
+});
 
 // Memoized error display component
-const ErrorDisplay = React.memo(({ message }: { message: string }) => (
-  <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md">
-    Error loading monitor data: {message}
-  </div>
-));
+const ErrorDisplay = React.memo(function ErrorDisplay({ message }: { message: string }) {
+  return (
+    <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md">
+      Error loading monitor data: {message}
+    </div>
+  );
+});
 
 function MonitorsPage() {
   const [latencyData, setLatencyData] = useState<LatencyData | null>(null)

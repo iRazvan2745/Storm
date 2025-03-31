@@ -5,7 +5,8 @@ import {
   LineChart, 
   Line, 
   Tooltip, 
-  ResponsiveContainer
+  ResponsiveContainer,
+  TooltipProps
 } from "recharts"
 
 type LatencyDataPoint = {
@@ -19,8 +20,19 @@ type LatencyChartProps = {
   color?: string
 }
 
+interface CustomTooltipProps extends TooltipProps<number, string> {
+  active?: boolean;
+  payload?: Array<{
+    payload: {
+      timestamp: number;
+      time: string;
+      latency: number;
+    };
+  }>;
+}
+
 // Memoized tooltip component to prevent unnecessary re-renders
-const CustomTooltip = memo(({ active, payload }: any) => {
+const CustomTooltip = memo(({ active, payload }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     const date = new Date(data.timestamp);

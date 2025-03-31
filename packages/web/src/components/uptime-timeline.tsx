@@ -21,9 +21,6 @@ export function UptimeTimeline({ statusData, targetId }: UptimeTimelineProps) {
   
   console.log(`UptimeTimeline for targetId: ${targetId}`, statusData)
 
-  // Check if we have any data for this target
-  const hasAnyData = Object.keys(statusData).length > 0
-
   return (
     <div>
       <TooltipProvider>
