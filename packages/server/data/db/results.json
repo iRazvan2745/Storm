@@ -373,8 +373,8 @@
           {
             "startTime": 1743409800000,
             "endTime": 1743411599999,
-            "avgResponseTime": 132.44444444444446,
-            "count": 27
+            "avgResponseTime": 133.86111111111111,
+            "count": 72
           }
         ],
         "isDown": false
@@ -753,8 +753,8 @@
           {
             "startTime": 1743409800000,
             "endTime": 1743411599999,
-            "avgResponseTime": 131.37037037037038,
-            "count": 27
+            "avgResponseTime": 128.72222222222211,
+            "count": 72
           }
         ],
         "isDown": false
@@ -1096,8 +1096,8 @@
           {
             "startTime": 1743409800000,
             "endTime": 1743411599999,
-            "avgResponseTime": 11.296296296296298,
-            "count": 27
+            "avgResponseTime": 11.25,
+            "count": 72
           }
         ],
         "isDown": false
@@ -1354,8 +1354,8 @@
           {
             "startTime": 1743409800000,
             "endTime": 1743411599999,
-            "avgResponseTime": 16.85185185185185,
-            "count": 27
+            "avgResponseTime": 16.68055555555555,
+            "count": 72
           }
         ],
         "isDown": false
@@ -1736,8 +1736,8 @@
           {
             "startTime": 1743409800000,
             "endTime": 1743411599999,
-            "avgResponseTime": 130.42307692307696,
-            "count": 26
+            "avgResponseTime": 130.01408450704224,
+            "count": 71
           }
         ],
         "isDown": false
@@ -2116,8 +2116,8 @@
           {
             "startTime": 1743409800000,
             "endTime": 1743411599999,
-            "avgResponseTime": 99.37037037037037,
-            "count": 27
+            "avgResponseTime": 95.40277777777779,
+            "count": 72
           }
         ],
         "isDown": false
@@ -2459,8 +2459,8 @@
           {
             "startTime": 1743409800000,
             "endTime": 1743411599999,
-            "avgResponseTime": 11.222222222222221,
-            "count": 27
+            "avgResponseTime": 11.805555555555555,
+            "count": 72
           }
         ],
         "isDown": false
@@ -2717,8 +2717,8 @@
           {
             "startTime": 1743409800000,
             "endTime": 1743411599999,
-            "avgResponseTime": 16.814814814814813,
-            "count": 27
+            "avgResponseTime": 16.79166666666667,
+            "count": 72
           }
         ],
         "isDown": false
