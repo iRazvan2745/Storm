@@ -31,6 +31,14 @@
       "host": "8.8.8.8",
       "interval": 60000,
       "timeout": 5000
+    },
+    {
+      "id": 5,
+      "type": "http",
+      "name": "not Browken anymore",
+      "url": "https://cloudflare.com",
+      "interval": 60000,
+      "timeout": 5000
     }
   ]
 }

@@ -11,6 +11,7 @@
     "@elysiajs/swagger": "^0.8.5",
     "@storm/shared": "workspace:*",
     "chalk": "^5.4.1",
+    "chokidar": "^4.0.3",
     "date-fns": "^2.30.0",
     "dotenv": "^16.4.7",
     "elysia": "^0.8.17",

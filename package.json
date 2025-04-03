@@ -7,7 +7,6 @@
     "packages/*"
   ],
   "scripts": {
-    "install": "bun install && cd packages && bun install && cd ",
     "dev:web": "cd packages/web && bun run dev",
     "build:web": "cd packages/web && bun run build",
     "start:web": "cd packages/web && bun run start",
@@ -23,5 +22,8 @@
     "autoprefixer": "^10.4.21",
     "bun-types": "latest",
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.3"
   }
 }

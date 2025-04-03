@@ -89,7 +89,7 @@ export const LatencyChart = memo(function LatencyChart({
   }, []);
 
   return (
-    <div className="w-full bg-white p-4 rounded-md border border-gray-200 mb-6">
+    <div className="w-full bg-white p-4 rounded-md mb-6">
       <div className="flex justify-between items-center mb-1">
         <div>
           <h3 className="text-base font-medium">{targetName}</h3>

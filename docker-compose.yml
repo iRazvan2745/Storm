@@ -1,0 +1,48 @@
+services:
+  web:
+    build: 
+      context: ./packages/web
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    environment:
+      - SERVER_URL=http://server:3000
+    depends_on:
+      - server
+
+  server:
+    build:
+      context: ./packages/server
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - API_KEY=random_string
+    volumes:
+      - ./data:/app/data
+
+  agent-1:
+    build:
+      context: ./packages/agent
+      dockerfile: Dockerfile
+    environment:
+      - AGENT_NAME=Agent-1
+      - AGENT_LOCATION=EU-local-1
+      - SERVER_URL=http://server:3000
+      - CHECK_INTERVAL=60000
+      - API_KEY=random_string
+    depends_on:
+      - server
+
+  agent-2:
+    build:
+      context: ./packages/agent
+      dockerfile: Dockerfile
+    environment:
+      - AGENT_NAME=Agent-2
+      - AGENT_LOCATION=EU-local-2
+      - SERVER_URL=http://server:3000
+      - CHECK_INTERVAL=60000
+      - API_KEY=random_string
+    depends_on:
+      - server

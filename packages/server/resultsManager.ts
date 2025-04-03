@@ -2,6 +2,7 @@ import type { DowntimeRecord, DailyDowntimeRecord, MonitoringResult, ResponseTim
 import { logInfo, logWarning, logError } from '@storm/shared';
 import { ensureDir, pathExists, readJson, writeJson } from 'fs-extra';
 import { resolve, dirname } from 'path';
+import { sendAlert } from './alertManager';
 
 export class ResultsManager {
   // Structure: Map<agentId, Map<targetId, Map<date, DailyDowntimeRecord>>>
@@ -237,7 +238,7 @@ export class ResultsManager {
         status.isDown = isDown;
       } else {
         // Otherwise, require at least 2 agents to report down
-        status.isDown = downCount >= 2;
+        status.isDown = downCount >= this.minAgentsForDowntime;
       }
 
       if (wasDown !== status.isDown) {
@@ -327,6 +328,12 @@ export class ResultsManager {
           startTime: result.timestamp,
           endTime: null
         };
+        // Send an alert about the target going down
+        sendAlert(
+          `Target ${result.targetId} is DOWN: ${result.error || 'Unknown error'}`,
+          { id: result.targetId, type: 'http', name: `Target ${result.targetId}`, url: 'Hidden', interval: 10000, timeout: 5000 },
+          { id: agentId, name: agentId, location: 'Unknown', status: 'offline', lastSeen: result.timestamp }
+        );
         
         // Store the error message in the log but not in the incident record
         // since DowntimeRecord doesn't have an error property

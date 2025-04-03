@@ -14,6 +14,11 @@ type UptimeTargetData = {
     isPartial: boolean;
     responseTime: number;
   }>;
+  startTime?: number;
+  endTime?: number | null;
+  isPartial?: boolean;
+  responseTime?: number;
+  status: string;
 }
 
 type UptimeApiResponse = {
@@ -33,10 +38,11 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const dateParam = url.searchParams.get('date');
     const targetParam = url.searchParams.get('targetId');
+    const server = process.env.SERVER_URL || "http://localhost:3000";
     
     // If a specific date was requested, forward the request to the backend API
     if (dateParam) {
-      const apiUrl = `http://localhost:3000/api/uptime${targetParam ? `?targetId=${targetParam}&date=${dateParam}` : `?date=${dateParam}`}`;
+      const apiUrl = `${server}/api/uptime${targetParam ? `?targetId=${targetParam}&date=${dateParam}` : `?date=${dateParam}`}`;
       console.log(`Fetching historical data from: ${apiUrl}`);
       
       const backendResponse = await fetch(apiUrl, {
@@ -66,12 +72,19 @@ export async function GET(request: Request) {
             formattedData.results[targetId] = {};
           }
           
+          // Calculate uptime percentage: 100 - (downtime / total time * 100)
+          // For a full day, total time is 86400000 ms (24 hours)
+          const totalTimeMs = 86400000;
+          const uptimePercentage = 100 - (targetData.downtimeMs / totalTimeMs * 100);
+          
           // Add the date entry for this target
           if (targetData && typeof targetData === 'object') {
             formattedData.results[targetId][dateParam] = {
-              isDown: targetData.incidents?.some(i => i.endTime === null) ?? false,
+              status: targetData.downtimeMs > 0 ? (targetData.isDown ? 'outage' : 'degraded') : 'operational',
+              isDown: targetData.downtimeMs > 0,
               downtimeMs: targetData.downtimeMs || 0,
               avgResponseTime: targetData.avgResponseTime || 0,
+              uptimePercentage: Math.max(0, Math.min(100, uptimePercentage)),
               incidents: targetData.incidents?.map(incident => ({
                 startTime: incident.startTime,
                 endTime: incident.endTime,
@@ -89,7 +102,7 @@ export async function GET(request: Request) {
     
     // Otherwise, we need to fetch data for multiple dates to build the timeline
     // First, get today's data
-    const todayResponse = await fetch("http://localhost:3000/api/uptime", {
+    const todayResponse = await fetch(`${server}/api/uptime`, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -105,13 +118,13 @@ export async function GET(request: Request) {
     
     // Also fetch target status and targets
     const [statusResponse, targetsResponse] = await Promise.all([
-      fetch("http://localhost:3000/api/target-status", {
+      fetch(`${server}/api/target-status`, {
         headers: {
           "Content-Type": "application/json",
         },
         cache: "no-store"
       }),
-      fetch("http://localhost:3000/api/targets", {
+      fetch(`${server}/api/targets`, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -142,7 +155,7 @@ export async function GET(request: Request) {
     }
     
     // Enhance the current status with target names
-    const enhancedStatus = statusData.statuses ? statusData.statuses.map((status: { targetId: string | number }) => {
+    const enhancedStatus = statusData.currentStatus ? statusData.currentStatus.map((status: { targetId: string | number }) => {
       return {
         ...status,
         name: targetMap[status.targetId] || `Target ${status.targetId}`
@@ -154,7 +167,7 @@ export async function GET(request: Request) {
     const pastDates: string[] = [];
     
     // Generate array of past 45 days
-    for (let i = 0; i < 45; i++) {
+    for (let i = 1; i < 45; i++) {  // Start from 1 to skip today (already fetched)
       const date = new Date();
       date.setDate(today.getDate() - i);
       pastDates.push(date.toISOString().split('T')[0]);
@@ -172,9 +185,20 @@ export async function GET(request: Request) {
           formattedResults[targetId] = {};
         }
         
+        // Calculate uptime percentage: 100 - (downtime / total time * 100)
+        // For a full day, total time is 86400000 ms (24 hours)
+        const totalTimeMs = 86400000;
+        const uptimePercentage = 100 - (targetData.downtimeMs / totalTimeMs * 100);
+        
         formattedResults[targetId][todayStr] = {
-          isDown: targetData.incidents?.some(i => i.endTime === null) ?? false,
+          status: targetData.downtimeMs > 60000 
+            ? (targetData.downtimeMs > 3600000) 
+              ? 'outage' 
+              : 'degraded' 
+            : 'operational',
+          isDown: targetData.downtimeMs > 3600000 || targetData.isDown,
           downtimeMs: targetData.downtimeMs || 0,
+          uptimePercentage: Math.max(0, Math.min(100, uptimePercentage)),
           avgResponseTime: targetData.avgResponseTime || 0,
           incidents: targetData.incidents?.map(incident => ({
             startTime: incident.startTime,
@@ -189,7 +213,7 @@ export async function GET(request: Request) {
     // Fetch historical data for each past date
     const historicalDataPromises = pastDates.map(async (date) => {
       try {
-        const response = await fetch(`http://localhost:3000/api/uptime?date=${date}`, {
+        const response = await fetch(`${server}/api/uptime?date=${date}`, {
           headers: {
             "Content-Type": "application/json",
           },
@@ -220,10 +244,21 @@ export async function GET(request: Request) {
             formattedResults[targetId] = {};
           }
           
+          // Calculate uptime percentage: 100 - (downtime / total time * 100)
+          // For a full day, total time is 86400000 ms (24 hours)
+          const totalTimeMs = 86400000;
+          const uptimePercentage = 100 - (targetData.downtimeMs / totalTimeMs * 100);
+          
           formattedResults[targetId][date] = {
-            isDown: targetData.incidents?.some(i => i.endTime === null) ?? false,
+            status: targetData.downtimeMs > 60000 
+              ? (targetData.downtimeMs > 3600000) 
+                ? 'outage' 
+                : 'degraded' 
+              : 'operational',
+            isDown: targetData.downtimeMs > 3600000 || targetData.isDown,
             downtimeMs: targetData.downtimeMs || 0,
             avgResponseTime: targetData.avgResponseTime || 0,
+            uptimePercentage: Math.max(0, Math.min(100, uptimePercentage)),
             incidents: targetData.incidents?.map(incident => ({
               startTime: incident.startTime,
               endTime: incident.endTime,
@@ -231,6 +266,38 @@ export async function GET(request: Request) {
               responseTime: incident.responseTime
             }))
           };
+        });
+      }
+    });
+    
+    // Calculate 45-day uptime percentage for each target
+    Object.keys(formattedResults).forEach(targetId => {
+      const targetData = formattedResults[targetId];
+      const dates = Object.keys(targetData);
+      
+      // Calculate total downtime across all dates
+      let totalDowntimeMs = 0;
+      let daysWithData = 0;
+      
+      dates.forEach(date => {
+        if (targetData[date]) {
+          totalDowntimeMs += targetData[date].downtimeMs || 0;
+          daysWithData += 1;
+        }
+      });
+      
+      // Calculate total time period (in ms) based on days with data
+      const totalTimeMs = daysWithData * 86400000;
+      
+      // Calculate overall uptime percentage if we have data
+      if (totalTimeMs > 0) {
+        const overallUptimePercentage = 100 - (totalDowntimeMs / totalTimeMs * 100);
+        
+        // Add the overall uptime percentage to each date entry
+        dates.forEach(date => {
+          if (targetData[date]) {
+            targetData[date].uptimePercentage = Math.max(0, Math.min(100, overallUptimePercentage));
+          }
         });
       }
     });

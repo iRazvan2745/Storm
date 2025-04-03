@@ -5,6 +5,7 @@ import { TargetManager } from './targetManager';
 import { AgentManager } from './agentManager';
 import { ResultsManager } from './resultsManager';
 import { swagger } from '@elysiajs/swagger';
+import { sendAlert } from './alertManager';
 
 // Define request body types for type safety
 interface AgentRegistrationBody {
@@ -18,6 +19,12 @@ interface ResultsSubmissionBody {
 
 // Create a unique server ID
 const serverId = `server-${Date.now()}`;
+
+const apiKey = process.env.API_KEY || '';
+
+if (!apiKey) {
+  throw new Error('API_KEY environment variable is not set');
+}
 
 // Initialize managers
 const targetManager = new TargetManager();
@@ -80,7 +87,7 @@ const app = new Elysia()
   }))
   
   // Add CORS headers to all responses
-  .onBeforeHandle(({ request, set }) => {
+  .onBeforeHandle(({ set }) => {
     set.headers['Access-Control-Allow-Origin'] = '*';
     set.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS';
     set.headers['Access-Control-Allow-Headers'] = 'Content-Type, x-agent-id';
@@ -89,7 +96,16 @@ const app = new Elysia()
   .use(swagger())
 
   // API routes
-  .post('/api/register', async ({ body }: { body: AgentRegistrationBody }) => {
+  .post('/api/register', async ({ body, headers }: { body: AgentRegistrationBody, headers: any }) => {
+    // Check API key
+    if (headers['x-api-key'] !== apiKey) {
+      logWarning('Registration rejected: Invalid API key');
+      return {
+        success: false,
+        error: 'Unauthorized: Invalid API key'
+      };
+    }
+    
     logInfo(`Registration request received for agent: ${body.name} at location: ${body.location}`);
     
     // Validate input data
@@ -117,7 +133,8 @@ const app = new Elysia()
       status: 'online',
       lastSeen: Date.now(),
     };
-    
+    // Send alert about successful agent registration
+    await sendAlert(`Agent registered successfully: ${agent.name} (${agent.location})`, undefined, agent);
     // Register the agent and get its ID
     const agentId = agentManager.registerAgent(agent);
     logInfo(`Agent registered successfully: ${agent.name} (${agentId}) at ${agent.location}`);
@@ -131,6 +148,14 @@ const app = new Elysia()
 
   .post('/api/heartbeat', ({ headers }) => {
     const agentId = headers['x-agent-id'];
+    
+    if (headers['x-api-key'] !== apiKey) {
+      logWarning('Heartbeat rejected: Invalid API key');
+      return {
+        success: false,
+        error: 'Unauthorized: Invalid API key'
+      };
+    }
     
     if (!agentId) {
       logWarning('Heartbeat received without agent ID');

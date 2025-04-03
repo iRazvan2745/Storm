@@ -9,9 +9,13 @@ export class MonitorAgent {
   private isRunning = false;
   private checkIntervals: Map<string, NodeJS.Timeout> = new Map();
   private lastTargetsUpdate: number = 0;
-
+  private apiKey: string = process.env.API_KEY || '';
+    
   constructor(config: AgentConfig) {
     this.config = config;
+    if(!this.apiKey) {
+      throw new Error('API_KEY environment variable is not set');
+    }
     this.agent = {
       id: generateId(),
       name: config.name,
@@ -58,13 +62,13 @@ export class MonitorAgent {
     const url = `${this.config.serverUrl}/api/register`;
     const body = JSON.stringify({
       name: this.config.name,
-      location: this.config.location,
+      location: this.config.location
     });
 
     try {
       const response = await this.retryFetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-api-key': this.apiKey },
         body,
       });
 
@@ -92,7 +96,8 @@ export class MonitorAgent {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'x-agent-id': this.agent.id
+            'x-agent-id': this.agent.id,
+            'x-api-key': this.apiKey
           },
           body: JSON.stringify({ agentId: this.agent.id }),
         });
@@ -122,7 +127,8 @@ export class MonitorAgent {
           {
             headers: { 
               'Content-Type': 'application/json',
-              'x-agent-id': this.agent.id
+              'x-agent-id': this.agent.id,
+              'x-api-key': this.apiKey
             },
             signal: AbortSignal.timeout(10000)
           }
@@ -214,7 +220,9 @@ export class MonitorAgent {
           try {
             const response = await fetch(target.url, {
               method: 'GET',
-              headers: { 'User-Agent': `Storm/${this.agent.name}` },
+              headers: { 
+                'User-Agent': `Storm/${this.agent.name}`
+              },
               signal: controller.signal
             });
             
@@ -298,7 +306,8 @@ export class MonitorAgent {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'x-agent-id': this.agent.id
+            'x-agent-id': this.agent.id,
+            'x-api-key': this.apiKey
           },
           body: JSON.stringify({ results: [result] }),
           signal: AbortSignal.timeout(10000)
@@ -363,7 +372,8 @@ export class MonitorAgent {
           {
             headers: { 
               'Content-Type': 'application/json',
-              'x-agent-id': this.agent.id
+              'x-agent-id': this.agent.id,
+              'x-api-key': this.apiKey
             },
             signal: AbortSignal.timeout(10000)
           }

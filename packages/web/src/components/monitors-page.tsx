@@ -195,7 +195,7 @@ function MonitorsPage() {
   }, [loading, error, latencyData, getTargetNameById, chartColors]);
 
   return (
-    <div className={"max-w-[800px] mx-auto px-6 py-8"}>
+    <div className={"max-w-[800px] mx-auto  border border-gray-200 rounded-xl p-4 m-4"}>
       {content}
     </div>
   );

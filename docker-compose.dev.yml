@@ -1,0 +1,38 @@
+services:
+  web:
+    build: 
+      context: ./packages/web
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./packages/web:/app
+      - /app/node_modules
+    depends_on:
+      - server
+
+  server:
+    build:
+      context: ./packages/server
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3000"
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./packages/server:/app
+      - /app/node_modules
+  agent-1:
+    build: ./packages/agent 
+    #ports: Agent do not require any ports yet
+    #  - "3000:3000"
+    environment:
+      - AGENT_NAME='Agent-1'
+      - AGENT_LOCATION='EU-SouthEast'
+      - SERVER_URL='127.0.0.1:3000'
+      - CHECK_INTERVAL=60000 # default value
+    volumes:
+      - ./packages/agent:/app
+      - /app/node_modules
