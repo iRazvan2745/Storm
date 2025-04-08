@@ -72,15 +72,16 @@ export async function GET(request: Request) {
             formattedData.results[targetId] = {};
           }
           
-          // Calculate uptime percentage: 100 - (downtime / total time * 100)
-          // For a full day, total time is 86400000 ms (24 hours)
-          const totalTimeMs = 86400000;
-          const uptimePercentage = 100 - (targetData.downtimeMs / totalTimeMs * 100);
+          // Use the uptimePercentage directly from the server response
+          // No client-side calculation needed
+          const uptimePercentage = targetData.uptimePercentage || 0;
           
           // Add the date entry for this target
           if (targetData && typeof targetData === 'object') {
             formattedData.results[targetId][dateParam] = {
-              status: targetData.downtimeMs > 0 ? (targetData.isDown ? 'outage' : 'degraded') : 'operational',
+              // Use status directly from server if available, otherwise derive from server data
+              status: targetData.status || (targetData.downtimeMs > 3600000 ? 'outage' : (targetData.downtimeMs > 0 ? 'degraded' : 'operational')),
+              // Only mark as down if there's actual downtime
               isDown: targetData.downtimeMs > 0,
               downtimeMs: targetData.downtimeMs || 0,
               avgResponseTime: targetData.avgResponseTime || 0,
@@ -162,6 +163,9 @@ export async function GET(request: Request) {
       };
     }) : [];
     
+    // Format today's data
+    const formattedResults: Record<string, Record<string, UptimeTargetData>> = {};
+    
     // Now fetch historical data for the past 45 days
     const today = new Date();
     const pastDates: string[] = [];
@@ -170,11 +174,25 @@ export async function GET(request: Request) {
     for (let i = 1; i < 45; i++) {  // Start from 1 to skip today (already fetched)
       const date = new Date();
       date.setDate(today.getDate() - i);
-      pastDates.push(date.toISOString().split('T')[0]);
+      const dateStr = date.toISOString().split('T')[0];
+      pastDates.push(dateStr);
+      
+      // Initialize empty data for each date with isDown set to false
+      Object.keys(todayData.results || {}).forEach(targetId => {
+        if (!formattedResults[targetId]) {
+          formattedResults[targetId] = {};
+        }
+        if (!formattedResults[targetId][dateStr]) {
+          formattedResults[targetId][dateStr] = {
+            status: 'operational',
+            isDown: false,
+            downtimeMs: 0,
+            avgResponseTime: 0,
+            uptimePercentage: 100
+          };
+        }
+      });
     }
-    
-    // Format today's data
-    const formattedResults: Record<string, Record<string, UptimeTargetData>> = {};
     
     // Process today's data
     if (todayData.results && typeof todayData.results === 'object') {
@@ -185,10 +203,9 @@ export async function GET(request: Request) {
           formattedResults[targetId] = {};
         }
         
-        // Calculate uptime percentage: 100 - (downtime / total time * 100)
-        // For a full day, total time is 86400000 ms (24 hours)
-        const totalTimeMs = 86400000;
-        const uptimePercentage = 100 - (targetData.downtimeMs / totalTimeMs * 100);
+        // Use the uptimePercentage directly from the server response
+        // No client-side calculation needed
+        const uptimePercentage = targetData.uptimePercentage || 0;
         
         formattedResults[targetId][todayStr] = {
           status: targetData.downtimeMs > 60000 
@@ -244,18 +261,15 @@ export async function GET(request: Request) {
             formattedResults[targetId] = {};
           }
           
-          // Calculate uptime percentage: 100 - (downtime / total time * 100)
-          // For a full day, total time is 86400000 ms (24 hours)
-          const totalTimeMs = 86400000;
-          const uptimePercentage = 100 - (targetData.downtimeMs / totalTimeMs * 100);
+          // Use the uptimePercentage directly from the server response
+          // No client-side calculation needed
+          const uptimePercentage = targetData.uptimePercentage || 0;
           
           formattedResults[targetId][date] = {
-            status: targetData.downtimeMs > 60000 
-              ? (targetData.downtimeMs > 3600000) 
-                ? 'outage' 
-                : 'degraded' 
-              : 'operational',
-            isDown: targetData.downtimeMs > 3600000 || targetData.isDown,
+            // Use status directly from server if available, otherwise derive from server data
+            status: targetData.status || (targetData.downtimeMs > 0 ? (targetData.downtimeMs > 3600000 ? 'outage' : 'degraded') : 'operational'),
+            // Only mark as down if there's actual downtime
+            isDown: targetData.downtimeMs > 0,
             downtimeMs: targetData.downtimeMs || 0,
             avgResponseTime: targetData.avgResponseTime || 0,
             uptimePercentage: Math.max(0, Math.min(100, uptimePercentage)),

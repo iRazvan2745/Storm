@@ -1,5 +1,6 @@
 "use client"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useTargetUptime } from "@/hooks/useTargetUptime"
 
 type StatusData = {
   [date: string]: {
@@ -23,8 +24,8 @@ export function UptimeStatusCard({ targetName, targetId, statusData }: UptimeSta
   // Get all dates in the last 45 days
   const allDates = getLast45Days()
 
-  // Calculate uptime percentage
-  const uptimePercentage = calculateUptimePercentage(statusData)
+  // Get uptime data from the server
+  const { day: uptimePercentage } = useTargetUptime(parseInt(targetId, 10))
 
   return (
     <div className="border rounded-lg p-6 bg-white shadow-sm">
@@ -38,7 +39,7 @@ export function UptimeStatusCard({ targetName, targetId, statusData }: UptimeSta
             </div>
           </div>
         </div>
-        <div className="text-lg font-medium">{uptimePercentage.toFixed(2)}% uptime</div>
+        <div className="text-lg font-medium">{Number(uptimePercentage).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}% uptime</div>
       </div>
 
       <div className="mt-6">
@@ -70,21 +71,7 @@ export function UptimeStatusCard({ targetName, targetId, statusData }: UptimeSta
   )
 }
 
-function calculateUptimePercentage(statusData: StatusData): number {
-  const dates = Object.keys(statusData)
-  if (dates.length === 0) return 100
-  
-  const totalDays = dates.length
-  let downDays = 0
-  
-  for (const date of dates) {
-    if (statusData[date].isDown) {
-      downDays++
-    }
-  }
-  
-  return ((totalDays - downDays) / totalDays) * 100
-}
+// Removed client-side uptime calculation as we now use server-side calculation
 
 function getLast45Days(): Date[] {
   const dates: Date[] = []

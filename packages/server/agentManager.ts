@@ -2,6 +2,7 @@ import type { Agent } from '@storm/shared';
 import { logInfo, logWarning, logError } from '@storm/shared';
 import { ensureDir, pathExists, readJson, writeJson } from 'fs-extra';
 import { resolve, dirname } from 'path';
+import { sendAlert } from './alertManager';
 
 export class AgentManager {
   private agents: Agent[] = [];
@@ -131,6 +132,10 @@ export class AgentManager {
     
     // Save changes to file
     this.saveAgentsToFile();
+    
+    // Send alert
+    sendAlert(`New agent registered: ${newAgent.name} (${newAgent.location}) with ID ${newAgent.id}`);
+
     return newAgent.id;
   }
 
@@ -172,6 +177,9 @@ export class AgentManager {
         // Update the cache
         this.agentCache.set(agent.id, agent);
         logWarning(`Agent went offline: ${agent.name} (${agent.location})`);
+        
+        // Send alert
+        sendAlert(`Agent went offline: ${agent.name} (${agent.location})`);
       }
     });
     
@@ -190,6 +198,9 @@ export class AgentManager {
       this.agentCache.delete(agentId);
       
       logInfo(`Removed agent: ${agent?.name} (${agent?.location})`);
+      
+      // Send alert
+      sendAlert(`Removed agent: ${agent?.name} (${agent?.location})`);
       
       // Save changes to file
       this.saveAgentsToFile();

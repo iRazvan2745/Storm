@@ -35,8 +35,8 @@
     {
       "id": 5,
       "type": "http",
-      "name": "not Browken anymore",
-      "url": "https://cloudflare.com",
+      "name": "Browken",
+      "url": "https://closgsfgsudflare.com",
       "interval": 60000,
       "timeout": 5000
     }

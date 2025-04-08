@@ -158,11 +158,11 @@ export default function Home() {
           ) : (
             <div className="space-y-8">
               {Object.entries(statusData).map(([targetId, data]) => {
-                // Calculate uptime percentage over all available days
-                const totalDays = Object.keys(data).length
-                const downtimeDays = Object.values(data).filter((day) => day.isDown || day.downtimeMs > 0).length
+                // Calculate uptime percentage based on actual downtime duration
+                const totalTimeMs = Object.keys(data).length * 24 * 60 * 60 * 1000 // Total time in ms
+                const totalDowntimeMs = Object.values(data).reduce((acc, day) => acc + day.downtimeMs, 0)
                 const uptimePercentage =
-                  totalDays > 0 ? (((totalDays - downtimeDays) / totalDays) * 100).toFixed(2) : "100.00"
+                  totalTimeMs > 0 ? ((totalTimeMs - totalDowntimeMs) / totalTimeMs * 100).toFixed(2) : "100.00"
 
                 return (
                   <div key={targetId} className="pb-6">

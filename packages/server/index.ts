@@ -36,7 +36,7 @@ const cache = new Map<string, { data: any; timestamp: number }>();
 const CACHE_TTL = 10000; // 10 seconds cache TTL
 
 // Helper function to get or set cached data
-function getCachedData<T>(key: string, ttl: number, dataFn: () => T): T {
+async function getCachedData<T>(key: string, ttl: number, dataFn: () => T | Promise<T>): Promise<T> {
   const now = Date.now();
   const cachedItem = cache.get(key);
   
@@ -46,7 +46,7 @@ function getCachedData<T>(key: string, ttl: number, dataFn: () => T): T {
   }
   
   logInfo(`Cache miss for ${key}, generating fresh data`);
-  const freshData = dataFn();
+  const freshData = await dataFn();
   cache.set(key, { data: freshData, timestamp: now });
   return freshData;
 }
@@ -299,7 +299,7 @@ const app = new Elysia()
     }
   })
 
-  .get('/api/uptime', ({ query }) => {
+  .get('/api/uptime', async ({ query }) => {
     const targetId = query.targetId as string | undefined;
     const date = query.date as string | undefined;
     
@@ -310,9 +310,9 @@ const app = new Elysia()
     
     try {
       // Use cached data if available
-      return getCachedData(cacheKey, CACHE_TTL, () => {
+      return getCachedData(cacheKey, CACHE_TTL, async () => {
         // Get uptime data from the ResultsManager
-        const uptimeData = resultsManager.getUptimeData(targetId, date);
+        const uptimeData = await resultsManager.getUptimeData(targetId, date);
         
         // Rename 'targets' to 'results' to match what the frontend expects
         return {
@@ -327,6 +327,34 @@ const app = new Elysia()
         success: false,
         error: 'Failed to get uptime data',
         results: {}
+      };
+    }
+  })
+
+  .post('/api/uptime/reset', async ({ headers }) => {
+    // Check API key for security
+    if (headers['x-api-key'] !== apiKey) {
+      logWarning('Uptime reset rejected: Invalid API key');
+      return {
+        success: false,
+        error: 'Unauthorized: Invalid API key'
+      };
+    }
+    
+    try {
+      // Reset all uptime history data
+      await resultsManager.resetUptimeData();
+      
+      logInfo('Uptime history has been reset successfully');
+      return {
+        success: true,
+        message: 'Uptime history has been reset successfully'
+      };
+    } catch (error) {
+      logError(`Error resetting uptime data: ${error}`);
+      return {
+        success: false,
+        error: 'Failed to reset uptime data'
       };
     }
   })
@@ -533,15 +561,137 @@ const app = new Elysia()
     return new Response(null, { status: 204 });
   })
 
-// Start the server
-const PORT = parseInt(process.env.SERVER_PORT || '3000', 10);
+// Add this API endpoint to get uptime percentages
+app.get('/api/targets/:targetId/uptime', async ({ params }) => {
+  try {
+    const targetId = Number(params.targetId);
+    
+    if (isNaN(targetId)) {
+      return {
+        success: false,
+        error: 'Invalid target ID'
+      };
+    }
+    
+    const target = targetManager.getTarget(targetId);
+    
+    if (!target) {
+      return {
+        success: false,
+        error: 'Target not found'
+      };
+    }
+    
+    // Convert string targetId to number before passing to getUptimePercentages
+    const numericTargetId = Number(targetId);
+    
+    if (isNaN(numericTargetId)) {
+      return {
+        success: false,
+        error: 'Invalid target ID format'
+      };
+    }
+    
+    // Pass the numeric targetId to getUptimePercentages
+    const uptimePercentages = await resultsManager.getUptimePercentages(numericTargetId);
+    
+    return {
+      success: true,
+      targetId: numericTargetId,
+      uptime: uptimePercentages
+    };
+  } catch (error) {
+    logError(`Error getting uptime percentages: ${error}`);
+    return {
+      success: false,
+      error: 'Failed to get uptime percentages'
+    };
+  }
+})
 
-app.listen(PORT, () => {
-  logInfo(`Server started on port ${PORT}`);
-  logInfo(`Server ID: ${serverId}`);
+.all('*', ({ request }) => {
+  const url = new URL(request.url);
+  logWarning(`Unhandled request: ${request.method} ${url.pathname}`);
+  return new Response('Not Found', { status: 404 });
+})
+
+// Handle favicon.ico requests to prevent 404 errors
+.get('/favicon.ico', () => {
+  return new Response(null, { status: 204 });
+})
+
+// Add uptime data initialization on server startup
+async function initializeUptimeData() {
+  try {
+    logInfo('Initializing uptime data...');
+    await resultsManager.initializeUptimeData();
+    logInfo('Uptime data initialized successfully');
+  } catch (error) {
+    logError(`Failed to initialize uptime data: ${error}`);
+  }
+}
+
+// Add endpoint to force uptime check
+app.post('/api/uptime/check', async ({ query, headers }) => {
+  // Check API key for security
+  if (headers['x-api-key'] !== apiKey) {
+    logWarning('Force uptime check rejected: Invalid API key');
+    return {
+      success: false,
+      error: 'Unauthorized: Invalid API key'
+    };
+  }
+  
+  try {
+    // Get the target ID from the query parameters if provided
+    const targetId = query?.targetId ? parseInt(query.targetId as string, 10) : undefined;
+    
+    // Force an uptime check
+    const statuses = await resultsManager.forceUptimeCheck(targetId);
+    
+    // Clear caches when new data arrives
+    cache.delete('latency-data');
+    cache.delete('uptime-data');
+    cache.delete('target-status');
+    
+    logInfo(`Force uptime check completed${targetId ? ` for target ${targetId}` : ' for all targets'}`);
+    return {
+      success: true,
+      message: `Uptime check completed${targetId ? ` for target ${targetId}` : ' for all targets'}`,
+      statuses: statuses
+    };
+  } catch (error) {
+    logError(`Error forcing uptime check: ${error}`);
+    return {
+      success: false,
+      error: 'Failed to force uptime check'
+    };
+  }
+})
+
+// Modify the server startup section
+const startServer = async () => {
+  // Initialize data before starting
+  logInfo('Loading targets...');
+  await targetManager.loadTargetsFromFile();
   logInfo(`Loaded ${targetManager.getTargets().length} targets`);
-  logInfo(`Loaded ${agentManager.getAgents().length} agents`);
-  logInfo(`Server is ready to accept connections`);
+  
+  await initializeUptimeData();
+
+  const PORT = parseInt(process.env.SERVER_PORT || '3000', 10);
+
+  app.listen(PORT, () => {
+    logInfo(`Server started on port ${PORT}`);
+    logInfo(`Server ID: ${serverId}`);
+    logInfo(`Monitoring ${targetManager.getTargets().length} targets`);
+    logInfo(`Connected to ${agentManager.getAgents().length} agents`);
+    logInfo(`Server is ready to accept connections`);
+  });
+};
+
+startServer().catch(error => {
+  logError(`Server startup failed: ${error}`);
+  process.exit(1);
 });
 
 // Check for offline agents periodically
@@ -579,6 +729,9 @@ function handleShutdown() {
   // Exit the process
   process.exit(0);
 }
+
+// Export for testing
+export { targetManager, agentManager, resultsManager };
 
 // Handle graceful shutdown
 process.on('SIGINT', handleShutdown);

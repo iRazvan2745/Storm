@@ -17,7 +17,7 @@ export class TargetManager {
     this.watchConfigFile();
   }
 
-  private async loadTargetsFromFile(): Promise<void> {
+  public async loadTargetsFromFile(): Promise<void> {
     try {
       if (await pathExists(this.configPath)) {
         const data = await readJson(this.configPath);

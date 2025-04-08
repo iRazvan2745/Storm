@@ -2,17 +2,20 @@ FROM oven/bun:latest
 
 WORKDIR /app
 
-# Copy package files for better layer caching
-COPY package*.json ./
-COPY packages/server/package*.json ./packages/server/
-COPY packages/shared/package*.json ./packages/shared/
+# Copy root package.json and workspace files
+COPY package.json .
+COPY bun.lock .
+COPY packages/shared ./packages/shared
+COPY packages/server/package.json ./packages/server/
 
 # Install dependencies
 RUN bun install
 
-# Copy the rest of the application code
-COPY . .
+# Copy server source
+COPY packages/server ./packages/server
+
+WORKDIR /app/packages/server
 
 EXPOSE 3000
 
-CMD ["bun", "run", "start:server"]
+CMD ["bun", "run", "start"]

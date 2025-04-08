@@ -650,6 +650,31 @@ export class ResultsManager {
   }
 
   /**
+   * Reset all uptime history data
+   * This method clears all stored results and reinitializes the uptime data
+   * @returns Promise that resolves when the reset is complete
+   */
+  public async resetUptimeData(): Promise<void> {
+    try {
+      logInfo('Resetting all uptime history data');
+      
+      // Clear all results
+      this.results.clear();
+      
+      // Reset target status
+      this.targetStatus.clear();
+      
+      // Save empty results to file
+      await this.saveResultsToFile();
+      
+      logInfo('Uptime history data has been reset successfully');
+    } catch (error) {
+      logError(`Failed to reset uptime data: ${error}`);
+      throw error;
+    }
+  }
+
+  /**
    * Store multiple monitoring results from an agent
    * @param agentId The ID of the agent submitting results
    * @param results Array of monitoring results to store
@@ -702,7 +727,7 @@ export class ResultsManager {
     return this.saveResultsToFile();
   }
 
-  public getUptimeData(targetId?: string, date?: string): Record<string, any> {
+  public async getUptimeData(targetId?: string, date?: string): Promise<{ targets: Record<string, any>; date: string }> {
     logInfo(`Retrieving uptime data${targetId ? ` for target ${targetId}` : ''}${date ? ` for date ${date}` : ''}`);
     
     // Get the date to check, defaulting to today
@@ -732,7 +757,7 @@ export class ResultsManager {
     const responseTimeData = this.getResponseTimeAverages(undefined, dateToCheck);
     
     // Calculate uptime percentages
-    const uptimeData: Record<string, any> = {
+    const uptimeData: { targets: Record<string, any>; date: string } = {
       date: dateToCheck,
       targets: {}
     };
@@ -755,9 +780,17 @@ export class ResultsManager {
       const agentCount = Object.keys(targetDowntime).length;
       const avgDowntimeMs = agentCount > 0 ? totalDowntimeMs / agentCount : 0;
       
-      // Calculate uptime percentage (out of 24 hours)
-      const totalDayMs = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-      const uptimePercentage = ((totalDayMs - avgDowntimeMs) / totalDayMs) * 100;
+      // Calculate uptime percentage using the same logic as calculateUptimePercentage
+      const now = Date.now();
+      const dayStart = new Date(dateToCheck);
+      dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(dateToCheck);
+      dayEnd.setHours(23, 59, 59, 999);
+      
+      const uptimePercentage = await this.calculateUptimePercentage(status.targetId, {
+        start: dayStart.getTime(),
+        end: dayEnd.getTime()
+      });
       
       // Calculate average response time for this target
       let avgResponseTime = 0;
@@ -798,5 +831,215 @@ export class ResultsManager {
     }
     
     return uptimeData;
+  }
+
+  async initializeUptimeData(): Promise<void> {
+    try {
+      // Get all target IDs with proper Map access
+      const targetIds = new Set<string>();
+      
+      for (const [_, dateMap] of this.results) {
+        for (const [targetId, _] of dateMap) {
+          targetIds.add(targetId);
+        }
+      }
+
+      // Pre-calculate uptime data for each target
+      await Promise.all(
+        Array.from(targetIds).map(targetId => this.getUptimeData(targetId))
+      );
+      
+      logInfo(`Pre-calculated uptime data for ${targetIds.size} targets`);
+    } catch (error) {
+      logError(`Uptime data initialization failed: ${error}`);
+      throw error;
+    }
+  }
+
+  // Calculate uptime percentage for a target within a time range
+  private async calculateUptimePercentage(targetId: number, timeRange: { start: number, end: number }): Promise<number> {
+    try {
+      // Calculate the start date for 45 days ago
+      const fortyFiveDaysAgo = new Date();
+      fortyFiveDaysAgo.setDate(fortyFiveDaysAgo.getDate() - 45);
+      fortyFiveDaysAgo.setHours(0, 0, 0, 0);
+
+      // Get all results for this target from all agents
+      const agentResults = Array.from(this.results.values());
+      let totalUptimePercentage = 0;
+      let daysWithData = 0;
+
+      // Process each day individually
+      for (let i = 0; i < 45; i++) {
+        const currentDate = new Date(fortyFiveDaysAgo);
+        currentDate.setDate(fortyFiveDaysAgo.getDate() + i);
+        const nextDate = new Date(currentDate);
+        nextDate.setDate(currentDate.getDate() + 1);
+
+        const dailyStart = currentDate.getTime();
+        const dailyEnd = nextDate.getTime();
+        let dailyDowntimeMs = 0;
+        let hasDataForDay = false;
+        const agentDowntimes = new Map<string, DowntimeRecord[]>();
+
+        // Collect downtime periods from all agents for this day
+        for (const agent of agentResults) {
+          const targetMap = agent.get(targetId.toString());
+          if (!targetMap) continue;
+
+          const dateStr = currentDate.toISOString().split('T')[0];
+          const record = targetMap.get(dateStr);
+          
+          if (record) {
+            hasDataForDay = true;
+            // Process each incident
+            for (const incident of record.incidents) {
+              const incidentStart = Math.max(incident.startTime, dailyStart);
+              const incidentEnd = incident.endTime ? Math.min(incident.endTime, dailyEnd) : dailyEnd;
+              
+              const agentId = Array.from(this.results.keys()).find(aid => this.results.get(aid) === agent) || '';
+              if (!agentDowntimes.has(agentId)) {
+                agentDowntimes.set(agentId, []);
+              }
+              agentDowntimes.get(agentId)?.push({
+                startTime: incidentStart,
+                endTime: incidentEnd
+              });
+            }
+          }
+        }
+
+        if (hasDataForDay) {
+          // Process overlapping downtime periods for this day
+          const timelinePoints = new Map<number, number>();
+
+          // Add all downtime period boundaries to the timeline
+          for (const [_, incidents] of agentDowntimes) {
+            for (const incident of incidents) {
+              timelinePoints.set(incident.startTime, (timelinePoints.get(incident.startTime) || 0) + 1);
+              if (incident.endTime) {
+                timelinePoints.set(incident.endTime, (timelinePoints.get(incident.endTime) || 0) - 1);
+              }
+            }
+          }
+
+          // Sort timeline points
+          const sortedPoints = Array.from(timelinePoints.entries()).sort((a, b) => a[0] - b[0]);
+
+          // Calculate actual downtime considering minAgentsForDowntime
+          let currentAgentsDown = 0;
+          let lastTimestamp = dailyStart;
+
+          for (const [timestamp, change] of sortedPoints) {
+            if (currentAgentsDown >= this.minAgentsForDowntime) {
+              dailyDowntimeMs += timestamp - lastTimestamp;
+            }
+            currentAgentsDown += change;
+            lastTimestamp = timestamp;
+          }
+
+          // Handle the final period
+          if (currentAgentsDown >= this.minAgentsForDowntime) {
+            dailyDowntimeMs += dailyEnd - lastTimestamp;
+          }
+
+          // Calculate daily uptime percentage
+          const dailyUptimePercentage = 100 - ((dailyDowntimeMs / (24 * 60 * 60 * 1000)) * 100);
+          totalUptimePercentage += Math.max(0, Math.min(100, dailyUptimePercentage));
+          daysWithData++;
+        }
+      }
+
+      // Calculate average uptime percentage across all days with data
+      if (daysWithData === 0) return 100; // Return 100% if no data available
+      const averageUptimePercentage = totalUptimePercentage / daysWithData;
+      return Math.round(averageUptimePercentage * 100) / 100; // Round to 2 decimal places
+
+    } catch (error) {
+      logError(`Failed to calculate uptime percentage for target ${targetId}: ${error}`);
+      return 100; // Default to 100% uptime when an error occurs
+    }
+  }
+  
+  // Get uptime percentages for different time ranges
+  public async getUptimePercentages(targetId: number): Promise<{
+    day: number | null;
+    week: number | null;
+    month: number | null;
+    year: number | null;
+  }> {
+    const now = Date.now();
+    const dayAgo = now - 86400000; // 24 hours
+    const weekAgo = now - 604800000; // 7 days
+    const monthAgo = now - 2592000000; // 30 days
+    const yearAgo = now - 31536000000; // 365 days
+    
+    const [day, week, month, year] = await Promise.all([
+      this.calculateUptimePercentage(targetId, { start: dayAgo, end: now }),
+      this.calculateUptimePercentage(targetId, { start: weekAgo, end: now }),
+      this.calculateUptimePercentage(targetId, { start: monthAgo, end: now }),
+      this.calculateUptimePercentage(targetId, { start: yearAgo, end: now })
+    ]);
+    
+    // Filter out null values and calculate average only for periods with data
+    const periods = { day, week, month, year };
+    const validPeriods = Object.entries(periods).filter(([_, value]) => value !== null);
+    
+    if (validPeriods.length === 0) {
+      // If no periods have data, return 0 for all periods
+      return { day: 0, week: 0, month: 0, year: 0 };
+    }
+    
+    // For each period, use the actual value if available, otherwise use the average of valid periods
+    const validAverage = validPeriods.reduce((sum, [_, value]) => sum + (value || 0), 0) / validPeriods.length;
+    
+    return {
+      day: periods.day !== null ? periods.day : validAverage,
+      week: periods.week !== null ? periods.week : validAverage,
+      month: periods.month !== null ? periods.month : validAverage,
+      year: periods.year !== null ? periods.year : validAverage
+    };
+  }
+
+  /**
+   * Force an immediate uptime check for a specific target or all targets
+   * This method updates the target status based on the current state
+   * @param targetId Optional target ID to check a specific target
+   * @returns Object containing the updated target statuses
+   */
+  public async forceUptimeCheck(targetId?: number): Promise<TargetStatus[]> {
+    try {
+      logInfo(`Forcing uptime check${targetId ? ` for target ${targetId}` : ' for all targets'}`);
+      
+      // Get the targets to check
+      const targetStatuses: TargetStatus[] = [];
+      
+      if (targetId !== undefined) {
+        // Check a specific target
+        const status = this.getTargetStatus(targetId);
+        if (status) {
+          // Update the lastUpdated timestamp
+          status.lastUpdated = Date.now();
+          targetStatuses.push(status);
+          logInfo(`Updated status for target ${targetId}: ${status.isDown ? 'DOWN' : 'UP'}`);
+        } else {
+          logWarning(`Target ${targetId} not found for uptime check`);
+        }
+      } else {
+        // Check all targets
+        const allStatuses = this.getAllTargetStatuses();
+        for (const status of allStatuses) {
+          // Update the lastUpdated timestamp
+          status.lastUpdated = Date.now();
+          targetStatuses.push(status);
+        }
+        logInfo(`Updated status for ${targetStatuses.length} targets`);
+      }
+      
+      return targetStatuses;
+    } catch (error) {
+      logError(`Failed to force uptime check: ${error}`);
+      throw error;
+    }
   }
 }

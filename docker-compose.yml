@@ -1,8 +1,8 @@
 services:
   web:
     build: 
-      context: ./packages/web
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: packages/web/Dockerfile
     ports:
       - "3001:3000"
     environment:
@@ -12,8 +12,8 @@ services:
 
   server:
     build:
-      context: ./packages/server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: packages/server/Dockerfile
     ports:
       - "3000:3000"
     environment:
@@ -23,8 +23,8 @@ services:
 
   agent-1:
     build:
-      context: ./packages/agent
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: packages/agent/Dockerfile
     environment:
       - AGENT_NAME=Agent-1
       - AGENT_LOCATION=EU-local-1
@@ -36,8 +36,8 @@ services:
 
   agent-2:
     build:
-      context: ./packages/agent
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: packages/agent/Dockerfile
     environment:
       - AGENT_NAME=Agent-2
       - AGENT_LOCATION=EU-local-2
